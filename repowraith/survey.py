@@ -6,18 +6,25 @@ DEFAULT_IGNORE_DIRS = {
     ".venv",
     "__pycache__",
     "node_modules",
-    "repowraith.egg-info",
 }
+
+DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
+
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log"}
 
 
 def survey_repository(
-    repo_root: Path, ignore_dirs: Iterable[str] = DEFAULT_IGNORE_DIRS
+    repo_root: Path,
+    ignore_dirs: Iterable[str] = DEFAULT_IGNORE_DIRS,
+    ignore_dir_suffixes: Iterable[str] = DEFAULT_IGNORE_DIR_SUFFIXES,
+    ignore_extensions: Iterable[str] = DEFAULT_IGNORE_EXTENSIONS,
 ) -> list[Path]:
     """
     Walk a repository and return an ordered list of files.
 
-    - `files` are returned as Paths relative to repo_root.
-    - Ignores directories by name (e.g. ".git", ".venv").
+    - Paths returned relative to repo root
+    - Ignores junk directories
+    - Ignores junk file extensions
     """
 
     root = Path(repo_root).resolve()
@@ -26,17 +33,33 @@ def survey_repository(
     if not root.is_dir():
         raise NotADirectoryError(f"Repo root is not a directory: {root}")
 
-    ignore = set(ignore_dirs)
+    ignore_dirs = set(ignore_dirs)
+    ignore_dir_suffixes = set(ignore_dir_suffixes)
+    ignore_extensions = set(ignore_extensions)
     found = []
-    print(ignore)
 
     for path in root.rglob("*"):
         if not path.is_file():
             continue
+        if path.suffix in ignore_extensions:
+            continue
 
-        # this breaks the path into parts and checks if any of them are in the ignore list
+        # break the path into parts and checks if any of them are in the ignore lists
         rel = path.relative_to(root)
-        ignore_dir = bool([part for part in rel.parts if part in ignore])
+        ignore_dir = False
+
+        for part in rel.parts:
+            if part in ignore_dirs:
+                ignore_dir = True
+                break
+
+            for suffix in ignore_dir_suffixes:
+                if part.endswith(suffix):
+                    ignore_dir = True
+                    break
+
+            if ignore_dir:
+                break
 
         if ignore_dir:
             continue
