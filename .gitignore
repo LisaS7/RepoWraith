@@ -1,4 +1,14 @@
+# virtual environment
 .venv/
+
+# python cache
 __pycache__/
 *.pyc
-.repoSage/
+
+# packaging artifacts
+*.egg-info/
+dist/
+build/
+
+# RepoWraith index
+.repowraith/
