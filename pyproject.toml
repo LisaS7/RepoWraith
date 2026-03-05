@@ -1,0 +1,17 @@
+[project]
+name = "repowraith"
+version = "0.1.0"
+description = "A spectral archivist for your codebase. Index repositories and summon answers using semantic search and local LLMs."
+readme = "README.md"
+requires-python = ">=3.10"
+
+authors = [{ name = "Lisa Steven" }]
+
+dependencies = ["requests", "numpy"]
+
+[project.scripts]
+repowraith = "repowraith.cli:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
