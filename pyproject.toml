@@ -9,6 +9,9 @@ authors = [{ name = "Lisa Steven" }]
 
 dependencies = ["requests", "numpy"]
 
+[project.optional-dependencies]
+dev = ["pytest"]
+
 [project.scripts]
 repowraith = "repowraith.cli:main"
 
