@@ -3,6 +3,7 @@
 
 # python cache
 __pycache__/
+.pytest_cache/
 *.pyc
 
 # packaging artifacts
