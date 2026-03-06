@@ -12,7 +12,7 @@ DEFAULT_IGNORE_DIRS = {
 
 def survey_repository(
     repo_root: Path, ignore_dirs: Iterable[str] = DEFAULT_IGNORE_DIRS
-):
+) -> list[Path]:
     """
     Walk a repository and return an ordered list of files.
 
@@ -46,7 +46,3 @@ def survey_repository(
     # Use as_posix so sorting behaves the same on different operating systems
     found.sort(key=lambda p: p.as_posix())
     return found
-
-
-files = survey_repository(Path("/home/lisa/Documents/Projects/RepoWraith"))
-print(files)
