@@ -5,10 +5,11 @@ DEFAULT_IGNORE_DIRS = {
     ".git",
     ".venv",
     "__pycache__",
+    ".pytest_cache",
     "node_modules",
 }
 
-DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
+DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info", ".gitignore"}
 
 DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log"}
 

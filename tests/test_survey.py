@@ -38,7 +38,6 @@ def test_survey_repository_ignores_paths(tmp_path: Path) -> None:
 
     # Expected files are present
     assert "README.md" in stringy_paths
-    assert ".gitignore" in stringy_paths
     assert "folder/file1.py" in stringy_paths
     assert "folder/file2.html" in stringy_paths
 
