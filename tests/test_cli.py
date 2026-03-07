@@ -1,36 +1,42 @@
-# TODO:
-# Call cmd_survey
-# Output contains N files discovered
-# Output does not contain file paths
-
-# Call verbose
-# Output still contains count
-# output contains expected paths
-
-# how to test parse_args ......?
-
 from argparse import Namespace
 
-from repowraith.cli import cmd_survey
+from repowraith.cli import cmd_survey, parse_args
+from tests.helpers import create_test_repo
+
+# ═════════════════ COMMAND FUNCTIONS ══════════════════
 
 
-def test_survey_non_verbose(capsys):
-    args = Namespace(path=".", verbose=False)
+def test_survey_non_verbose(tmp_path, capsys):
+    create_test_repo(tmp_path)
+
+    args = Namespace(path=tmp_path, verbose=False)
+
+    cmd_survey(args)
+
+    captured = capsys.readouterr()
+
+    assert "3 files discovered" in captured.out
+    assert "folder/file1.py" not in captured.out
+
+
+def test_survey_verbose(tmp_path, capsys):
+    create_test_repo(tmp_path)
+
+    args = Namespace(path=tmp_path, verbose=True)
 
     cmd_survey(args)
 
     captured = capsys.readouterr()
 
-    assert "files discovered" in captured.out
+    assert "3 files discovered" in captured.out
+    assert "folder/file1.py" in captured.out
 
 
-def test_survey_verbose(capsys):
-    args = Namespace(path=".", verbose=True)
+# ══════════════════════════════════════════════════════
 
-    cmd_survey(args)
 
-    captured = capsys.readouterr()
-    print(captured)
-
-    assert "files discovered" in captured.out
-    assert "repowraith/" in captured.out
+def test_parse_args():
+    args = parse_args(["survey", ".", "--verbose"])
+    assert args.command == "survey"
+    assert args.path == "."
+    assert args.verbose is True

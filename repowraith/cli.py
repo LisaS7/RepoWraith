@@ -4,7 +4,7 @@ from pathlib import Path
 from repowraith.survey import survey_repository
 
 
-def parse_args():
+def parse_args(args=None):
     parser = argparse.ArgumentParser(prog="repowraith")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -19,7 +19,7 @@ def parse_args():
     # Register command functions
     survey_parser.set_defaults(func=cmd_survey)
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 # ═════════════════ COMMAND FUNCTIONS ══════════════════
