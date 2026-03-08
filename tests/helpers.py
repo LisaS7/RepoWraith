@@ -25,3 +25,13 @@ def create_test_repo(tmp_path: Path) -> None:
 
     # Ignored extension file in a normal location
     (tmp_path / "debug.log").write_text("Hello!", encoding="utf-8")
+
+
+def create_test_file(tmp_path: Path, relative_path: str, line_count: int) -> Path:
+    file_path = tmp_path / relative_path
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines = [f"Line {i}" for i in range(1, line_count + 1)]
+    file_path.write_text("\n".join(lines), encoding="utf-8")
+
+    return file_path
