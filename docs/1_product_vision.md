@@ -54,3 +54,12 @@ Developers can ask questions about the codebase in natural language and receive 
 ### Local-First Architecture
 
 All indexing, embedding, and inference operations run locally, ensuring privacy and eliminating dependency on external services.
+
+## Future Opportunities
+
+Potential future enhancements include:
+
+- structure-aware chunking based on functions and classes
+- IDE integrations
+- automated documentation generation
+- architectural summaries of repositories
