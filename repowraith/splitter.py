@@ -1,9 +1,5 @@
 # TODO:
-# 150 lines per chunk?
-# overlap 20-40 lines
 # add hashing later?
-# Need to store metadata (file path, start & end line, etc) - dataclass?
-# Very important to preserve line numbers!
 
 
 from dataclasses import dataclass
@@ -21,7 +17,7 @@ class Chunk:
     text: str
 
 
-def split_file(path: Path):
+def split_file(path: Path) -> list[Chunk]:
     content = path.read_text(encoding="utf-8").splitlines()
     total_lines = len(content)
 
@@ -42,8 +38,19 @@ def split_file(path: Path):
     return chunks
 
 
-def split_repository():
-    pass
+def split_repository(files: list[Path]) -> list[Chunk]:
+    chunks = []
+    for file in files:
+        file_chunks = split_file(file)
+        chunks.extend(file_chunks)
+    return chunks
 
 
-split_file(Path("repowraith/cli.py"))
+all_chunks = split_repository(
+    [
+        Path("repowraith/cli.py"),
+        Path("repowraith/survey.py"),
+    ]
+)
+for chunk in all_chunks:
+    print(f"{chunk.file_path} | lines {chunk.start_line}-{chunk.end_line}")
