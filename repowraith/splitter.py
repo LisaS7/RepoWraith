@@ -44,13 +44,3 @@ def split_repository(files: list[Path]) -> list[Chunk]:
         file_chunks = split_file(file)
         chunks.extend(file_chunks)
     return chunks
-
-
-all_chunks = split_repository(
-    [
-        Path("repowraith/cli.py"),
-        Path("repowraith/survey.py"),
-    ]
-)
-for chunk in all_chunks:
-    print(f"{chunk.file_path} | lines {chunk.start_line}-{chunk.end_line}")
