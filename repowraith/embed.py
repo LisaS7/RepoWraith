@@ -20,9 +20,21 @@ def embed_text(text: str, model: str = "embeddinggemma") -> list[float]:
     response.raise_for_status()
 
     response_json = response.json()
-    return response_json["embeddings"][0]
+
+    embeddings = response_json.get("embeddings")
+
+    if not embeddings:
+        raise RuntimeError("Ollama response missing embeddings")
+
+    return embeddings[0]
 
 
-def embed_chunks(chunks: list[Chunk]):
+def embed_chunks(chunks: list[Chunk]) -> list[EmbeddedChunk]:
+    embedded_chunks = []
+
     for chunk in chunks:
-        pass
+        vector = embed_text(chunk.text)
+        embedded = EmbeddedChunk(chunk=chunk, embedding=vector)
+        embedded_chunks.append(embedded)
+
+    return embedded_chunks
