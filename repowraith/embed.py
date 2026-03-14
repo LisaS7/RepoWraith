@@ -38,6 +38,7 @@ def embed_chunks(chunks: list[Chunk]) -> list[EmbeddedChunk]:
         embedded = EmbeddedChunk(chunk=chunk, embedding=vector)
         embedded_chunks.append(embedded)
 
-        print(f"Embedded {index}/{total}")
+        print(f"Embedding chunks: {index}/{total}", end="\r")
 
+    print()
     return embedded_chunks

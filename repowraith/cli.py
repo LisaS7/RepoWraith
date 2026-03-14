@@ -63,6 +63,8 @@ def cmd_ingest(args):
     embedded_chunks = embed_chunks(chunks)
     print(f"{len(embedded_chunks)} chunks embedded")
 
+    print()
+
     print("Ingestion complete")
 
 
