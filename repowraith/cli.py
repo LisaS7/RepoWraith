@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
 
+from repowraith.embed import embed_chunks
+from repowraith.splitter import split_repository
 from repowraith.survey import survey_repository
 
 
@@ -16,8 +18,17 @@ def parse_args(args=None):
         "--verbose", action="store_true", help="Print discovered file paths"
     )
 
+    ingest_parser = subparsers.add_parser(
+        "ingest", help="Index a repository so it can be queried using RepoWraith"
+    )
+    ingest_parser.add_argument("path", help="Path to the repository root")
+    ingest_parser.add_argument(
+        "--verbose", action="store_true", help="Print discovered file paths"
+    )
+
     # Register command functions
     survey_parser.set_defaults(func=cmd_survey)
+    ingest_parser.set_defaults(func=cmd_ingest)
 
     return parser.parse_args(args)
 
@@ -34,6 +45,14 @@ def cmd_survey(args):
         print()
         for file in files:
             print(file.as_posix())
+
+
+def cmd_ingest(args):
+    repo_path = Path(args.path)
+    files = survey_repository(repo_path)
+    chunks = split_repository(files)
+    embedded_chunks = embed_chunks(chunks)
+    print(f"{len(embedded_chunks)} chunks embedded")
 
 
 # ══════════════════════════════════════════════════════
