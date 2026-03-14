@@ -22,9 +22,6 @@ def parse_args(args=None):
         "ingest", help="Index a repository so it can be queried using RepoWraith"
     )
     ingest_parser.add_argument("path", help="Path to the repository root")
-    ingest_parser.add_argument(
-        "--verbose", action="store_true", help="Print discovered file paths"
-    )
 
     # Register command functions
     survey_parser.set_defaults(func=cmd_survey)
@@ -49,10 +46,24 @@ def cmd_survey(args):
 
 def cmd_ingest(args):
     repo_path = Path(args.path)
+
+    print("Surveying repository...")
     files = survey_repository(repo_path)
+    print(f"{len(files)} files discovered")
+
+    print()
+
+    print("Chunking files...")
     chunks = split_repository(files)
+    print(f"{len(chunks)} chunks created")
+
+    print()
+
+    print("Generating embeddings...")
     embedded_chunks = embed_chunks(chunks)
     print(f"{len(embedded_chunks)} chunks embedded")
+
+    print("Ingestion complete")
 
 
 # ══════════════════════════════════════════════════════
