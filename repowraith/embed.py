@@ -31,10 +31,13 @@ def embed_text(text: str, model: str = "embeddinggemma") -> list[float]:
 
 def embed_chunks(chunks: list[Chunk]) -> list[EmbeddedChunk]:
     embedded_chunks = []
+    total = len(chunks)
 
-    for chunk in chunks:
+    for index, chunk in enumerate(chunks, start=1):
         vector = embed_text(chunk.text)
         embedded = EmbeddedChunk(chunk=chunk, embedding=vector)
         embedded_chunks.append(embedded)
+
+        print(f"Embedded {index}/{total}")
 
     return embedded_chunks
