@@ -49,12 +49,13 @@ def cmd_ingest(args):
 
     print("Surveying repository...")
     files = survey_repository(repo_path)
+    full_paths = [repo_path / file for file in files]
     print(f"{len(files)} files discovered")
 
     print()
 
     print("Chunking files...")
-    chunks = split_repository(files)
+    chunks = split_repository(full_paths)
     print(f"{len(chunks)} chunks created")
 
     print()
