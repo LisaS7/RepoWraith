@@ -1,4 +1,5 @@
 import datetime
+import json
 import sqlite3
 from pathlib import Path
 
@@ -60,8 +61,37 @@ def delete_chunks_for_repo(conn: sqlite3.Connection, repo_id: int) -> None:
     )
 
 
-def insert_chunks():
-    pass
+def insert_chunks(
+    conn: sqlite3.Connection,
+    repo_id: int,
+    repo_path: Path,
+    embedded_chunks: list[EmbeddedChunk],
+) -> None:
+
+    if not embedded_chunks:
+        return
+
+    rows = []
+    for embedded_chunk in embedded_chunks:
+        chunk = embedded_chunk.chunk
+        relative_file_path = chunk.file_path.relative_to(repo_path).as_posix()
+        embedding_json = json.dumps(embedded_chunk.embedding)
+
+        row = (
+            repo_id,
+            relative_file_path,
+            chunk.start_line,
+            chunk.end_line,
+            chunk.text,
+            embedding_json,
+        )
+        rows.append(row)
+
+    cursor = conn.cursor()
+    cursor.executemany(
+        "INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding) VALUES (?, ?, ?, ?, ?, ?)",
+        rows,
+    )
 
 
 def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> None:
@@ -71,3 +101,4 @@ def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> N
         init_db(conn)
         repo_id = upsert_repository(conn, repo_path)
         delete_chunks_for_repo(conn, repo_id)
+        insert_chunks(conn, repo_id, repo_path, embedded_chunks)
