@@ -52,8 +52,12 @@ def upsert_repository(conn: sqlite3.Connection, repo_path: Path) -> int:
     return row[0]
 
 
-def delete_chunks_for_repo(conn: sqlite3.Connection, repo_id: int):
-    pass
+def delete_chunks_for_repo(conn: sqlite3.Connection, repo_id: int) -> None:
+    cursor = conn.cursor()
+    cursor.execute(
+        "DELETE FROM chunks WHERE repo_id = ?",
+        (repo_id,),
+    )
 
 
 def insert_chunks():
@@ -66,3 +70,4 @@ def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> N
     with get_connection(db_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, repo_path)
+        delete_chunks_for_repo(conn, repo_id)

@@ -1,7 +1,12 @@
 import sqlite3
 import time
 
-from repowraith.store import get_connection, init_db, upsert_repository
+from repowraith.store import (
+    delete_chunks_for_repo,
+    get_connection,
+    init_db,
+    upsert_repository,
+)
 
 
 def test_get_connection(tmp_path):
@@ -86,3 +91,56 @@ def test_upsert_repository_updates_indexed_at(tmp_path):
         second_indexed_at = cursor.fetchone()[0]
 
         assert second_indexed_at != first_indexed_at
+
+
+def test_delete_chunks_for_repo(tmp_path):
+    db_path = tmp_path / ".repowraith" / "index.db"
+
+    with get_connection(db_path) as conn:
+        init_db(conn)
+
+        repo_id_1 = upsert_repository(conn, tmp_path)
+        repo_id_2 = upsert_repository(conn, tmp_path / "other_repo")
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (repo_id_1, "file1.py", 1, 10, "chunk one", "[0.1, 0.2]"),
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (repo_id_1, "file2.py", 11, 20, "chunk two", "[0.3, 0.4]"),
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (repo_id_2, "other.py", 1, 5, "other repo chunk", "[0.5, 0.6]"),
+        )
+
+        # Check chunks have inserted
+        cursor.execute("SELECT COUNT(*) FROM chunks")
+        assert cursor.fetchone()[0] == 3
+
+        delete_chunks_for_repo(conn, repo_id_1)
+
+        # Check chunks have deleted
+        cursor.execute("SELECT COUNT(*) FROM chunks")
+        assert cursor.fetchone()[0] == 1
+
+        cursor.execute("SELECT repo_id, file_path FROM chunks")
+        rows = cursor.fetchall()
+
+        assert len(rows) == 1
+        assert rows[0][0] == repo_id_2
+        assert rows[0][1] == "other.py"
