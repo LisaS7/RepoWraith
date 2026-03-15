@@ -7,6 +7,7 @@ DEFAULT_IGNORE_DIRS = {
     "__pycache__",
     ".pytest_cache",
     "node_modules",
+    ".repowraith",
 }
 
 DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info", ".gitignore"}
