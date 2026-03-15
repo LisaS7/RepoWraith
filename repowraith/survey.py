@@ -24,7 +24,7 @@ def survey_repository(
     """
     Walk a repository and return an ordered list of files.
 
-    - Paths returned relative to repo root
+    - Returns absolute file paths
     - Ignores junk directories
     - Ignores junk file extensions
     """
@@ -66,7 +66,7 @@ def survey_repository(
         if ignore_dir:
             continue
 
-        found.append(rel)
+        found.append(path)
 
     # Use as_posix so sorting behaves the same on different operating systems
     found.sort(key=lambda p: p.as_posix())

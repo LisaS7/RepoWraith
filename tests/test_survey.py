@@ -12,18 +12,20 @@ def test_survey_repository_ignores_paths(tmp_path: Path) -> None:
     stringy_paths = [p.as_posix() for p in files]
 
     # Expected files are present
-    assert "README.md" in stringy_paths
-    assert "folder/file1.py" in stringy_paths
-    assert "folder/file2.html" in stringy_paths
+    assert tmp_path / "README.md" in files
+    assert tmp_path / "folder/file1.py" in files
+    assert tmp_path / "folder/file2.html" in files
 
     # Ignored dir contents are NOT present
-    assert not any(s.startswith(".venv/") for s in stringy_paths)
+    assert not any("/.venv/" in s for s in stringy_paths)
 
     # Ignored suffix dir contents are NOT present
     assert not any(".egg-info/" in s for s in stringy_paths)
 
     # Ignored extension files are NOT present
-    assert "debug.log" not in stringy_paths
+    assert not any(
+        s.endswith("/debug.log") or s.endswith("debug.log") for s in stringy_paths
+    )
 
     # All is in order
     assert stringy_paths == sorted(stringy_paths)
