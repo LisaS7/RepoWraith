@@ -2,6 +2,7 @@ import json
 import math
 from pathlib import Path
 
+from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
 from repowraith.store import get_connection
 
@@ -55,3 +56,8 @@ def retrieve_chunks(
     chunks.sort(key=lambda chunk: chunk.score, reverse=True)
 
     return chunks[:k]
+
+
+def retrieve(query: str, repo_path: Path, k: int = 5) -> list[RetrievedChunk]:
+    query_embedding = embed_text(query)
+    return retrieve_chunks(query_embedding, repo_path, k)
