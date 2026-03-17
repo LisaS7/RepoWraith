@@ -7,10 +7,15 @@ from repowraith.splitter import Chunk
 from repowraith.store import (
     delete_chunks_for_repo,
     get_connection,
+    get_db_path,
     init_db,
     insert_chunks,
     upsert_repository,
 )
+
+
+def test_get_db_path(tmp_path):
+    assert get_db_path(tmp_path) == tmp_path / ".repowraith" / "index.db"
 
 
 def test_get_connection(tmp_path):
@@ -19,6 +24,7 @@ def test_get_connection(tmp_path):
         assert (tmp_path / ".repowraith").exists()
         assert db_path.exists()
         assert isinstance(conn, sqlite3.Connection)
+        assert conn.row_factory is sqlite3.Row
 
 
 def test_init_db(tmp_path):

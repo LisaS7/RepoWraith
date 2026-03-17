@@ -18,7 +18,9 @@ def get_db_path(repo_path: Path) -> Path:
 def get_connection(repo_path: Path) -> sqlite3.Connection:
     db_path = get_db_path(repo_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db(conn: sqlite3.Connection) -> None:
