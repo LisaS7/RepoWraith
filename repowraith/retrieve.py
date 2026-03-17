@@ -1,18 +1,9 @@
 import json
 import math
-from dataclasses import dataclass
 from pathlib import Path
 
+from repowraith.models import Chunk, EmbeddedChunk
 from repowraith.store import get_connection
-
-
-@dataclass
-class StoredChunk:
-    file_path: str
-    start_line: int
-    end_line: int
-    text: str
-    embedding: list[float]
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -26,7 +17,7 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     return dot_product / (magnitude_a * magnitude_b)
 
 
-def load_chunks(repo_path: Path) -> list[StoredChunk]:
+def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
     with get_connection(repo_path) as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -36,13 +27,16 @@ def load_chunks(repo_path: Path) -> list[StoredChunk]:
 
     chunks = []
     for row in rows:
-        stored_chunk = StoredChunk(
+        chunk = Chunk(
             file_path=row["file_path"],
             start_line=row["start_line"],
             end_line=row["end_line"],
             text=row["text"],
+        )
+        embedded_chunk = EmbeddedChunk(
+            chunk=chunk,
             embedding=json.loads(row["embedding"]),
         )
-        chunks.append(stored_chunk)
+        chunks.append(embedded_chunk)
 
     return chunks

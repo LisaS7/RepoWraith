@@ -1,16 +1,9 @@
-from dataclasses import dataclass
-
 import requests
 
+from repowraith.models import EmbeddedChunk
 from repowraith.splitter import Chunk
 
 OLLAMA_API_URL = "http://localhost:11434/api/embed"
-
-
-@dataclass
-class EmbeddedChunk:
-    chunk: Chunk
-    embedding: list[float]
 
 
 def embed_text(text: str, model: str = "embeddinggemma") -> list[float]:

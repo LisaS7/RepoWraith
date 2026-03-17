@@ -2,19 +2,12 @@
 # add hashing later?
 
 
-from dataclasses import dataclass
 from pathlib import Path
+
+from repowraith.models import Chunk
 
 CHUNK_SIZE = 150
 OVERLAP = 20
-
-
-@dataclass
-class Chunk:
-    file_path: Path
-    start_line: int
-    end_line: int
-    text: str
 
 
 def split_file(path: Path) -> list[Chunk]:

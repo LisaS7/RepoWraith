@@ -37,9 +37,9 @@ def test_load_chunks(tmp_path):
 
     assert len(chunks) == 1
 
-    chunk = chunks[0]
-    assert chunk.file_path == "repowraith/embed.py"
-    assert chunk.start_line == 10
-    assert chunk.end_line == 25
-    assert chunk.text == "def embed_text(text): ..."
-    assert chunk.embedding == [0.1, 0.2, 0.3]
+    embedded_chunk = chunks[0]
+    assert embedded_chunk.chunk.file_path == "repowraith/embed.py"
+    assert embedded_chunk.chunk.start_line == 10
+    assert embedded_chunk.chunk.end_line == 25
+    assert embedded_chunk.chunk.text == "def embed_text(text): ..."
+    assert embedded_chunk.embedding == [0.1, 0.2, 0.3]
