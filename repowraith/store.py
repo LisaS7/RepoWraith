@@ -11,7 +11,12 @@ from repowraith.schema import (
 )
 
 
-def get_connection(db_path: Path) -> sqlite3.Connection:
+def get_db_path(repo_path: Path) -> Path:
+    return repo_path / ".repowraith" / "index.db"
+
+
+def get_connection(repo_path: Path) -> sqlite3.Connection:
+    db_path = get_db_path(repo_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     return sqlite3.connect(db_path)
 
@@ -95,9 +100,7 @@ def insert_chunks(
 
 
 def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> None:
-    db_path = repo_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(repo_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, repo_path)
         delete_chunks_for_repo(conn, repo_id)

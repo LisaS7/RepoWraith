@@ -30,7 +30,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     index_repository(repo_path, embedded_chunks)
     print("Indexing complete.")
 
-    with get_connection(repo_path / ".repowraith" / "index.db") as conn:
+    with get_connection(repo_path) as conn:
         cursor = conn.cursor()
 
         cursor.execute("SELECT * FROM repositories")

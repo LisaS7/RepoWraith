@@ -15,16 +15,14 @@ from repowraith.store import (
 
 def test_get_connection(tmp_path):
     db_path = tmp_path / ".repowraith" / "index.db"
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         assert (tmp_path / ".repowraith").exists()
         assert db_path.exists()
         assert isinstance(conn, sqlite3.Connection)
 
 
 def test_init_db(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
         cursor = conn.cursor()
 
@@ -40,9 +38,7 @@ def test_init_db(tmp_path):
 
 
 def test_upsert_repository_inserts_row(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, tmp_path)
 
@@ -59,9 +55,7 @@ def test_upsert_repository_inserts_row(tmp_path):
 
 
 def test_upsert_repository_does_not_duplicate(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, tmp_path)
 
@@ -77,9 +71,7 @@ def test_upsert_repository_does_not_duplicate(tmp_path):
 
 
 def test_upsert_repository_updates_indexed_at(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
 
         upsert_repository(conn, tmp_path)
@@ -99,9 +91,7 @@ def test_upsert_repository_updates_indexed_at(tmp_path):
 
 
 def test_delete_chunks_for_repo(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
 
         repo_id_1 = upsert_repository(conn, tmp_path)
@@ -140,8 +130,6 @@ def test_delete_chunks_for_repo(tmp_path):
 
 
 def test_insert_chunks_single_row(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
     chunk = Chunk(
         file_path=tmp_path / "folder" / "test.py",
         start_line=1,
@@ -154,7 +142,7 @@ def test_insert_chunks_single_row(tmp_path):
         embedding=[0.1, 0.2, 0.3],
     )
 
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, tmp_path)
 
@@ -181,8 +169,6 @@ def test_insert_chunks_single_row(tmp_path):
 
 
 def test_insert_chunks_multiple_rows(tmp_path):
-    db_path = tmp_path / ".repowraith" / "index.db"
-
     chunk_1 = Chunk(
         file_path=tmp_path / "folder" / "one.py",
         start_line=1,
@@ -207,7 +193,7 @@ def test_insert_chunks_multiple_rows(tmp_path):
         embedding=[0.4, 0.5, 0.6],
     )
 
-    with get_connection(db_path) as conn:
+    with get_connection(tmp_path) as conn:
         init_db(conn)
         repo_id = upsert_repository(conn, tmp_path)
 
