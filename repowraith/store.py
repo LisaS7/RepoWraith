@@ -15,6 +15,20 @@ def get_db_path(repo_path: Path) -> Path:
     return repo_path / ".repowraith" / "index.db"
 
 
+def get_repo_id(conn: sqlite3.Connection, repo_path: Path) -> int:
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id FROM repositories WHERE root_path = ?",
+        (str(repo_path.resolve()),),
+    )
+    repo_row = cursor.fetchone()
+
+    if repo_row is None:
+        raise ValueError(f"Repository not found in index: {repo_path}")
+
+    return repo_row["id"]
+
+
 def get_connection(repo_path: Path) -> sqlite3.Connection:
     db_path = get_db_path(repo_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -57,7 +71,7 @@ def upsert_repository(conn: sqlite3.Connection, repo_path: Path) -> int:
     if row is None:
         raise RuntimeError("Failed to fetch repository id after upsert")
 
-    return row[0]
+    return row["id"]
 
 
 def delete_chunks_for_repo(conn: sqlite3.Connection, repo_id: int) -> None:
