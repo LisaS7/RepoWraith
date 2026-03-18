@@ -2,6 +2,7 @@ import tempfile
 from pathlib import Path
 
 from repowraith.embed import embed_chunks
+from repowraith.llm import ask_llm
 from repowraith.models import RetrievedChunk
 from repowraith.prompt import build_prompt
 from repowraith.splitter import split_repository
@@ -47,3 +48,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
 
     print("\n--- PROMPT BUILT ---\n")
     print(prompt)
+
+    answer = ask_llm(prompt)
+
+    print("\n--- ANSWER ---\n")
+    print(answer)
