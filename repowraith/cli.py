@@ -3,6 +3,7 @@ from pathlib import Path
 
 from repowraith.embed import embed_chunks
 from repowraith.splitter import split_repository
+from repowraith.store import index_repository
 from repowraith.survey import survey_repository
 
 
@@ -63,6 +64,11 @@ def cmd_ingest(args):
     print("Generating embeddings...")
     embedded_chunks = embed_chunks(chunks)
     print(f"{len(embedded_chunks)} chunks embedded")
+
+    print()
+
+    print("Storing index...")
+    index_repository(repo_path, embedded_chunks)
 
     print()
 

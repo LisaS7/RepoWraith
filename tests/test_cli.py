@@ -41,7 +41,14 @@ def test_ingest(tmp_path, capsys, monkeypatch):
     def fake_embed_chunks(chunks):
         return ["fake1", "fake2"]
 
+    stored = {}
+
+    def fake_index_repository(repo_path, embedded_chunks):
+        stored["repo_path"] = repo_path
+        stored["embedded_chunks"] = embedded_chunks
+
     monkeypatch.setattr("repowraith.cli.embed_chunks", fake_embed_chunks)
+    monkeypatch.setattr("repowraith.cli.index_repository", fake_index_repository)
 
     cmd_ingest(args)
 
@@ -50,7 +57,11 @@ def test_ingest(tmp_path, capsys, monkeypatch):
     assert "Surveying repository..." in captured.out
     assert "Chunking files..." in captured.out
     assert "Generating embeddings..." in captured.out
+    assert "Storing index..." in captured.out
     assert "Ingestion complete" in captured.out
+
+    assert stored["repo_path"] == tmp_path
+    assert stored["embedded_chunks"] == ["fake1", "fake2"]
 
 
 # ═════════════════ PARSEARGS ══════════════════
