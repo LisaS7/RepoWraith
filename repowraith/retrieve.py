@@ -4,7 +4,7 @@ from pathlib import Path
 
 from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
-from repowraith.store import get_connection
+from repowraith.store import get_connection, get_repo_id
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -19,10 +19,12 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
 
 
 def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
+
     with get_connection(repo_path) as conn:
+        repo_id = get_repo_id(conn, repo_path)
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT file_path, start_line, end_line, text, embedding FROM chunks"
+            f"SELECT file_path, start_line, end_line, text, embedding FROM chunks WHERE repo_id = {repo_id}"
         )
         rows = cursor.fetchall()
 

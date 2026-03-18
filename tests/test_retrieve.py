@@ -7,6 +7,42 @@ from repowraith.retrieve import cosine_similarity, load_chunks, retrieve_chunks
 from repowraith.store import get_connection, init_db
 
 
+def insert_repository(cursor, repo_path: Path) -> int:
+    cursor.execute(
+        """
+        INSERT INTO repositories (root_path, indexed_at)
+        VALUES (?, ?)
+        """,
+        (str(repo_path.resolve()), "2026-03-18T12:00:00"),
+    )
+    return cursor.lastrowid
+
+
+def insert_chunk(
+    cursor,
+    repo_id: int,
+    file_path: str,
+    start_line: int,
+    end_line: int,
+    text: str,
+    embedding: list[float],
+) -> None:
+    cursor.execute(
+        """
+        INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            repo_id,
+            file_path,
+            start_line,
+            end_line,
+            text,
+            json.dumps(embedding),
+        ),
+    )
+
+
 def test_cosine_similarity():
     assert cosine_similarity([1, 0], [1, 0]) == pytest.approx(1)
     assert cosine_similarity([1, 0], [0, 1]) == pytest.approx(0)
@@ -18,19 +54,16 @@ def test_load_chunks(tmp_path):
     with get_connection(tmp_path) as conn:
         init_db(conn)
         cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                1,
-                "repowraith/embed.py",
-                10,
-                25,
-                "def embed_text(text): ...",
-                json.dumps([0.1, 0.2, 0.3]),
-            ),
+        repo_id = insert_repository(cursor, tmp_path)
+
+        insert_chunk(
+            cursor,
+            repo_id,
+            "repowraith/embed.py",
+            10,
+            25,
+            "def embed_text(text): ...",
+            [0.1, 0.2, 0.3],
         )
         conn.commit()
 
@@ -50,36 +83,10 @@ def test_retrieve_chunks_returns_best_match_first(tmp_path):
     with get_connection(tmp_path) as conn:
         init_db(conn)
         cursor = conn.cursor()
+        repo_id = insert_repository(cursor, tmp_path)
 
-        cursor.execute(
-            """
-            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                1,
-                "good_match.py",
-                1,
-                10,
-                "best chunk",
-                json.dumps([1.0, 0.0]),
-            ),
-        )
-
-        cursor.execute(
-            """
-            INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (
-                1,
-                "bad_match.py",
-                1,
-                10,
-                "worse chunk",
-                json.dumps([0.0, 1.0]),
-            ),
-        )
+        insert_chunk(cursor, repo_id, "good_match.py", 1, 10, "best chunk", [1.0, 0.0])
+        insert_chunk(cursor, repo_id, "bad_match.py", 1, 10, "worse chunk", [0.0, 1.0])
 
         conn.commit()
 
