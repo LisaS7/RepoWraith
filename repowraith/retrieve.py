@@ -99,7 +99,11 @@ def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
 
 
 def retrieve_chunks(
-    query: str, query_embedding: list[float], repo_path: Path, k: int = 5
+    query: str,
+    query_embedding: list[float],
+    repo_path: Path,
+    k: int = 5,
+    verbose: bool = False,
 ) -> list[RetrievedChunk]:
     embedded_chunks = load_chunks(repo_path)
     total_docs = len(embedded_chunks)
@@ -125,6 +129,16 @@ def retrieve_chunks(
         )
         score = semantic_score + 0.2 * lexical_score
 
+        if verbose:
+            print("\n--- Retrieval Debug ---")
+            print(
+                f"{embedded_chunk.chunk.file_path}:{embedded_chunk.chunk.start_line}-{embedded_chunk.chunk.end_line} "
+                f"semantic={semantic_score:.4f} "
+                f"lexical={lexical_score:.4f} "
+                f"total={score:.4f}"
+            )
+            print()
+
         retrieved_chunk = RetrievedChunk(embedded_chunk=embedded_chunk, score=score)
         chunks.append(retrieved_chunk)
     chunks.sort(key=lambda chunk: chunk.score, reverse=True)
@@ -132,6 +146,8 @@ def retrieve_chunks(
     return chunks[:k]
 
 
-def retrieve(query: str, repo_path: Path, k: int = 5) -> list[RetrievedChunk]:
+def retrieve(
+    query: str, repo_path: Path, k: int = 5, verbose: bool = False
+) -> list[RetrievedChunk]:
     query_embedding = embed_text(query)
-    return retrieve_chunks(query, query_embedding, repo_path, k)
+    return retrieve_chunks(query, query_embedding, repo_path, k, verbose=verbose)

@@ -33,6 +33,11 @@ def parse_args(args=None):
     )
     ask_parser.add_argument("path", help="Path to the repository root")
     ask_parser.add_argument("question", help="Question to ask about the repository")
+    ask_parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print retrieval debug output",
+    )
     ask_parser.set_defaults(func=cmd_ask)
 
     # Register command functions
@@ -90,7 +95,7 @@ def cmd_ask(args):
     repo_path = Path(args.path)
 
     print("Retrieving relevant chunks...")
-    retrieved_chunks = retrieve(args.question, repo_path)
+    retrieved_chunks = retrieve(args.question, repo_path, verbose=args.verbose)
 
     for item in retrieved_chunks:
         chunk = item.embedded_chunk.chunk
@@ -101,7 +106,7 @@ def cmd_ask(args):
         print("-" * 80)
 
     print("Building prompt...")
-    prompt = build_prompt(args.question, retrieved_chunks)
+    prompt = build_prompt(args.question, retrieved_chunks, verbose=args.verbose)
 
     print("Querying LLM...")
     answer = ask_llm(prompt)
