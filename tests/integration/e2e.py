@@ -3,8 +3,8 @@ from pathlib import Path
 
 from repowraith.embed import embed_chunks
 from repowraith.llm import ask_llm
-from repowraith.models import RetrievedChunk
 from repowraith.prompt import build_prompt
+from repowraith.retrieve import retrieve
 from repowraith.splitter import split_repository
 from repowraith.store import get_connection, index_repository
 from repowraith.survey import survey_repository
@@ -12,8 +12,18 @@ from repowraith.survey import survey_repository
 with tempfile.TemporaryDirectory() as tmp_dir:
     repo_path = Path(tmp_dir)
 
-    (repo_path / "README.md").write_text("# Test repo\n", encoding="utf-8")
-    (repo_path / "app.py").write_text("print('hello world')\n", encoding="utf-8")
+    (repo_path / "README.md").write_text(
+        "# Test repo\nThis project demonstrates indexing.\n",
+        encoding="utf-8",
+    )
+    (repo_path / "app.py").write_text(
+        "def main():\n    print('hello world')\n",
+        encoding="utf-8",
+    )
+    (repo_path / "utils.py").write_text(
+        "def add(a, b):\n    return a + b\n",
+        encoding="utf-8",
+    )
 
     files = survey_repository(repo_path)
     print(f"Files discovered: {len(files)}")
@@ -36,12 +46,10 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         cursor.execute("SELECT COUNT(*) FROM chunks")
         print("Chunk count:", cursor.fetchone()[0])
 
-    retrieved_chunks = [
-        RetrievedChunk(embedded_chunk=ec, score=1.0) for ec in embedded_chunks
-    ]
+    retrieved_chunks = retrieve("Where is the hello world code?", repo_path, k=3)
 
     prompt = build_prompt(
-        "Where is the hello world code?",
+        "Where is hello world printed?",
         retrieved_chunks,
         k=3,
     )
