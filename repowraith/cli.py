@@ -2,6 +2,9 @@ import argparse
 from pathlib import Path
 
 from repowraith.embed import embed_chunks
+from repowraith.llm import ask_llm
+from repowraith.prompt import build_prompt
+from repowraith.retrieve import retrieve
 from repowraith.splitter import split_repository
 from repowraith.store import index_repository
 from repowraith.survey import survey_repository
@@ -23,6 +26,14 @@ def parse_args(args=None):
         "ingest", help="Index a repository so it can be queried using RepoWraith"
     )
     ingest_parser.add_argument("path", help="Path to the repository root")
+
+    ask_parser = subparsers.add_parser(
+        "ask",
+        help="Ask a question about an indexed repository",
+    )
+    ask_parser.add_argument("path", help="Path to the repository root")
+    ask_parser.add_argument("question", help="Question to ask about the repository")
+    ask_parser.set_defaults(func=cmd_ask)
 
     # Register command functions
     survey_parser.set_defaults(func=cmd_survey)
@@ -46,7 +57,7 @@ def cmd_survey(args):
 
 
 def cmd_ingest(args):
-    repo_path = Path(args.path)
+    repo_path = Path(args.path).resolve()
 
     print("Surveying repository...")
     files = survey_repository(repo_path)
@@ -73,6 +84,30 @@ def cmd_ingest(args):
     print()
 
     print("Ingestion complete")
+
+
+def cmd_ask(args):
+    repo_path = Path(args.path)
+
+    print("Retrieving relevant chunks...")
+    retrieved_chunks = retrieve(args.question, repo_path)
+
+    for item in retrieved_chunks:
+        chunk = item.embedded_chunk.chunk
+        print(
+            f"{chunk.file_path}:{chunk.start_line}-{chunk.end_line} score={item.score}"
+        )
+        print(chunk.text)
+        print("-" * 80)
+
+    print("Building prompt...")
+    prompt = build_prompt(args.question, retrieved_chunks)
+
+    print("Querying LLM...")
+    answer = ask_llm(prompt)
+
+    print()
+    print(answer)
 
 
 # ══════════════════════════════════════════════════════
