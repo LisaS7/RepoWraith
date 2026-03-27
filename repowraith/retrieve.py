@@ -3,6 +3,7 @@ import math
 import re
 from pathlib import Path
 
+from repowraith.config import STOP_WORDS
 from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
 from repowraith.store import get_connection, get_repo_id
@@ -22,6 +23,10 @@ def tokenize(text: str) -> list[str]:
             tokens.extend(parts)
 
     return tokens
+
+
+def tokenize_query(text: str) -> list[str]:
+    return [token for token in tokenize(text) if token not in STOP_WORDS]
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -65,7 +70,7 @@ def bm25_score(
     b: float = 0.75,
 ) -> float:
     score = 0.0
-    query_terms = tokenize(query)
+    query_terms = tokenize_query(query)
     doc_length = len(tokenize(text))
 
     for term in query_terms:
