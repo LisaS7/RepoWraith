@@ -10,6 +10,16 @@ from repowraith.store import index_repository
 from repowraith.survey import survey_repository
 
 
+def preview_text(text: str, max_lines: int = 5) -> str:
+    lines = text.strip().splitlines()
+    preview = lines[:max_lines]
+
+    if len(lines) > max_lines:
+        preview.append("...")
+
+    return "\n".join(preview)
+
+
 def parse_args(args=None):
     parser = argparse.ArgumentParser(prog="repowraith")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -100,10 +110,10 @@ def cmd_ask(args):
     for item in retrieved_chunks:
         chunk = item.embedded_chunk.chunk
         print(
-            f"{chunk.file_path}:{chunk.start_line}-{chunk.end_line} score={item.score}"
+            f"[score={item.score:.3f}] {chunk.file_path}:{chunk.start_line}-{chunk.end_line}"
         )
-        print(chunk.text)
-        print("-" * 80)
+        print(preview_text(chunk.text))
+        print("-" * 60)
 
     print("Building prompt...")
     prompt = build_prompt(args.question, retrieved_chunks, verbose=args.verbose)

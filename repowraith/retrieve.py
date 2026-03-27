@@ -1,14 +1,27 @@
 import json
 import math
+import re
 from pathlib import Path
 
 from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
 from repowraith.store import get_connection, get_repo_id
 
+LEXICAL_WEIGHT = 0.5
+
 
 def tokenize(text: str) -> list[str]:
-    return text.lower().split()
+    raw_tokens = re.findall(r"[a-z0-9_]+", text.lower())
+    tokens = []
+
+    for token in raw_tokens:
+        tokens.append(token)
+
+        if "_" in token:
+            parts = [part for part in token.split("_") if part]
+            tokens.extend(parts)
+
+    return tokens
 
 
 def cosine_similarity(a: list[float], b: list[float]) -> float:
@@ -117,7 +130,7 @@ def retrieve_chunks(
     ]
     average_doc_length = sum(doc_lengths) / total_docs
 
-    chunks = []
+    scored_chunks = []
     for embedded_chunk in embedded_chunks:
         semantic_score = cosine_similarity(query_embedding, embedded_chunk.embedding)
         lexical_score = bm25_score(
@@ -127,23 +140,35 @@ def retrieve_chunks(
             total_docs=total_docs,
             average_doc_length=average_doc_length,
         )
-        score = semantic_score + 0.2 * lexical_score
-
-        if verbose:
-            print("\n--- Retrieval Debug ---")
-            print(
-                f"{embedded_chunk.chunk.file_path}:{embedded_chunk.chunk.start_line}-{embedded_chunk.chunk.end_line} "
-                f"semantic={semantic_score:.4f} "
-                f"lexical={lexical_score:.4f} "
-                f"total={score:.4f}"
-            )
-            print()
+        score = semantic_score + LEXICAL_WEIGHT * lexical_score
 
         retrieved_chunk = RetrievedChunk(embedded_chunk=embedded_chunk, score=score)
-        chunks.append(retrieved_chunk)
-    chunks.sort(key=lambda chunk: chunk.score, reverse=True)
+        scored_chunks.append(
+            {
+                "retrieved_chunk": retrieved_chunk,
+                "semantic_score": semantic_score,
+                "lexical_score": lexical_score,
+            }
+        )
 
-    return chunks[:k]
+    scored_chunks.sort(
+        key=lambda item: item["retrieved_chunk"].score,
+        reverse=True,
+    )
+
+    if verbose:
+        print("\n--- Retrieval Debug ---")
+        for item in scored_chunks:
+            chunk = item["retrieved_chunk"].embedded_chunk.chunk
+            print(
+                f"{chunk.file_path}:{chunk.start_line}-{chunk.end_line} "
+                f"semantic={item['semantic_score']:.4f} "
+                f"lexical={item['lexical_score']:.4f} "
+                f"total={item['retrieved_chunk'].score:.4f}"
+            )
+        print("-" * 60)
+
+    return [item["retrieved_chunk"] for item in scored_chunks[:k]]
 
 
 def retrieve(
