@@ -1,8 +1,7 @@
 import requests
 
 from repowraith.config import EMBED_MODEL, OLLAMA_EMBED_URL
-from repowraith.models import EmbeddedChunk
-from repowraith.splitter import Chunk
+from repowraith.models import Chunk, EmbeddedChunk
 
 
 def embed_text(text: str, model: str = EMBED_MODEL) -> list[float]:

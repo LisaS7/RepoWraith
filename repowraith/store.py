@@ -3,7 +3,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from repowraith.embed import EmbeddedChunk
+from repowraith.models import EmbeddedChunk
 from repowraith.schema import (
     CREATE_CHUNKS_REPO_INDEX,
     CREATE_CHUNKS_TABLE,

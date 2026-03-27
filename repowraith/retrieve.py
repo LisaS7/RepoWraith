@@ -3,7 +3,7 @@ import math
 import re
 from pathlib import Path
 
-from repowraith.config import DEFAULT_TOP_K, LEXICAL_WEIGHT, STOP_WORDS
+from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, LEXICAL_WEIGHT, STOP_WORDS
 from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
 from repowraith.store import get_connection, get_repo_id
@@ -64,8 +64,8 @@ def bm25_score(
     document_frequencies: dict[str, int],
     total_docs: int,
     average_doc_length: float,
-    k1: float = 1.5,
-    b: float = 0.75,
+    k1: float = BM25_K1,
+    b: float = BM25_B,
 ) -> float:
     score = 0.0
     query_terms = tokenize_query(query)
@@ -93,7 +93,8 @@ def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
         repo_id = get_repo_id(conn, repo_path)
         cursor = conn.cursor()
         cursor.execute(
-            f"SELECT file_path, start_line, end_line, text, embedding FROM chunks WHERE repo_id = {repo_id}"
+            "SELECT file_path, start_line, end_line, text, embedding FROM chunks WHERE repo_id = ?",
+            (repo_id,),
         )
         rows = cursor.fetchall()
 
