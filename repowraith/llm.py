@@ -1,10 +1,10 @@
 import requests
 
-API_URL = "http://localhost:11434/api/generate"
+from repowraith.config import LLM_MODEL, OLLAMA_GENERATE_URL
 
 
 def ask_llm(prompt: str) -> str:
-    request_body = {"model": "llama3", "prompt": prompt, "stream": False}
-    response = requests.post(API_URL, json=request_body)
+    request_body = {"model": LLM_MODEL, "prompt": prompt, "stream": False}
+    response = requests.post(OLLAMA_GENERATE_URL, json=request_body)
     response.raise_for_status()
     return response.json()["response"]

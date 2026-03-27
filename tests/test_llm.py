@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
-from repowraith.llm import API_URL, ask_llm
+from repowraith.config import OLLAMA_GENERATE_URL
+from repowraith.llm import ask_llm
 
 
 @patch("repowraith.llm.requests.post")
@@ -14,7 +15,7 @@ def test_ask_llm_sends_expected_request(mock_post):
     ask_llm(prompt)
 
     mock_post.assert_called_once_with(
-        API_URL,
+        OLLAMA_GENERATE_URL,
         json={
             "model": "llama3",
             "prompt": prompt,

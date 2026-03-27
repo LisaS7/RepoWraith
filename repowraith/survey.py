@@ -1,18 +1,11 @@
 from pathlib import Path
 from typing import Iterable
 
-DEFAULT_IGNORE_DIRS = {
-    ".git",
-    ".venv",
-    "__pycache__",
-    ".pytest_cache",
-    "node_modules",
-    ".repowraith",
-}
-
-DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info", ".gitignore"}
-
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log"}
+from repowraith.config import (
+    DEFAULT_IGNORE_DIR_SUFFIXES,
+    DEFAULT_IGNORE_DIRS,
+    DEFAULT_IGNORE_EXTENSIONS,
+)
 
 
 def survey_repository(

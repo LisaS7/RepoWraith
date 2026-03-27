@@ -3,12 +3,10 @@ import math
 import re
 from pathlib import Path
 
-from repowraith.config import STOP_WORDS
+from repowraith.config import DEFAULT_TOP_K, LEXICAL_WEIGHT, STOP_WORDS
 from repowraith.embed import embed_text
 from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
 from repowraith.store import get_connection, get_repo_id
-
-LEXICAL_WEIGHT = 0.5
 
 
 def tokenize(text: str) -> list[str]:
@@ -120,7 +118,7 @@ def retrieve_chunks(
     query: str,
     query_embedding: list[float],
     repo_path: Path,
-    k: int = 5,
+    k: int = DEFAULT_TOP_K,
     verbose: bool = False,
 ) -> list[RetrievedChunk]:
     embedded_chunks = load_chunks(repo_path)
@@ -177,7 +175,7 @@ def retrieve_chunks(
 
 
 def retrieve(
-    query: str, repo_path: Path, k: int = 5, verbose: bool = False
+    query: str, repo_path: Path, verbose: bool = False
 ) -> list[RetrievedChunk]:
     query_embedding = embed_text(query)
-    return retrieve_chunks(query, query_embedding, repo_path, k, verbose=verbose)
+    return retrieve_chunks(query, query_embedding, repo_path, verbose=verbose)

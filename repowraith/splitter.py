@@ -4,10 +4,8 @@
 
 from pathlib import Path
 
+from repowraith.config import CHUNK_SIZE, OVERLAP
 from repowraith.models import Chunk
-
-CHUNK_SIZE = 150
-OVERLAP = 20
 
 
 def split_file(path: Path) -> list[Chunk]:

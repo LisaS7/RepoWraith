@@ -1,15 +1,14 @@
 import requests
 
+from repowraith.config import EMBED_MODEL, OLLAMA_EMBED_URL
 from repowraith.models import EmbeddedChunk
 from repowraith.splitter import Chunk
 
-OLLAMA_API_URL = "http://localhost:11434/api/embed"
 
-
-def embed_text(text: str, model: str = "embeddinggemma") -> list[float]:
+def embed_text(text: str, model: str = EMBED_MODEL) -> list[float]:
     body = {"model": model, "input": text}
 
-    response = requests.post(OLLAMA_API_URL, json=body)
+    response = requests.post(OLLAMA_EMBED_URL, json=body)
     response.raise_for_status()
 
     response_json = response.json()

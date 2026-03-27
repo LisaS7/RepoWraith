@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from repowraith.config import DEFAULT_TOP_K
 from repowraith.models import RetrievedChunk
 
 
@@ -14,7 +15,7 @@ def format_chunk(retrieved_chunk: RetrievedChunk, index: int) -> str:
 def build_prompt(
     question: str,
     retrieved_chunks: list[RetrievedChunk],
-    k: int = 5,
+    k: int = DEFAULT_TOP_K,
     verbose: bool = False,
 ) -> str:
     top_chunks = retrieved_chunks[0:k]
