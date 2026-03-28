@@ -111,8 +111,9 @@ def cmd_ask(args):
         print(
             f"[score={item.score:.3f}] {chunk.file_path}:{chunk.start_line}-{chunk.end_line}"
         )
-        print(preview_text(chunk.text))
-        print("-" * 60)
+        if args.verbose:
+            print(preview_text(chunk.text))
+            print("-" * 60)
 
     print("Building prompt...")
     prompt = build_prompt(args.question, retrieved_chunks, verbose=args.verbose)
