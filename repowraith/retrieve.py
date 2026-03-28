@@ -64,8 +64,6 @@ def bm25_score(
     document_frequencies: dict[str, int],
     total_docs: int,
     average_doc_length: float,
-    k1: float = BM25_K1,
-    b: float = BM25_B,
 ) -> float:
     score = 0.0
     query_terms = tokenize_query(query)
@@ -79,8 +77,10 @@ def bm25_score(
         doc_freq = document_frequencies.get(term, 0)
         idf = inverse_document_frequency(term, total_docs, doc_freq)
 
-        numerator = tf * (k1 + 1)
-        denominator = tf + k1 * (1 - b + b * (doc_length / average_doc_length))
+        numerator = tf * (BM25_K1 + 1)
+        denominator = tf + BM25_K1 * (
+            1 - BM25_B + BM25_B * (doc_length / average_doc_length)
+        )
 
         score += idf * (numerator / denominator)
 
