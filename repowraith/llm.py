@@ -1,20 +1,7 @@
 import requests
 
-from repowraith.config import LLM_MODEL, OLLAMA_GENERATE_URL
-
-REQUEST_TIMEOUT_SECONDS = 30
-
-
-class OllamaError(RuntimeError):
-    """Base error for Ollama API failures."""
-
-
-class OllamaConnectionError(OllamaError):
-    """Raised when Ollama cannot be reached."""
-
-
-class OllamaResponseError(OllamaError):
-    """Raised when Ollama returns an unexpected response."""
+from repowraith.config import LLM_MODEL, OLLAMA_GENERATE_URL, REQUEST_TIMEOUT_SECONDS
+from repowraith.errors import OllamaConnectionError, OllamaResponseError
 
 
 def ask_llm(prompt: str) -> str:
