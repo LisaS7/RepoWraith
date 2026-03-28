@@ -1,12 +1,10 @@
+# Product Vision: RepoWraith
+
 ## Overview
+RepoWraith is a local-first developer tool that acts as a spectral archivist for your codebase. It enables developers to query and understand unfamiliar repositories quickly, without relying on external services or uploading sensitive code.
 
-RepoWraith is a local code-intelligence tool designed to help developers understand unfamiliar repositories.
 
-It surveys a repository, splits source files into semantic fragments, embeds those fragments using a local embedding model, and enables developers to ask questions about the codebase using semantic search and a local large language model.
-
-The system acts as a semantic archivist, allowing developers to explore and interrogate a codebase without relying on external APIs or cloud services.
-
-## Problem
+## Problem Statement
 
 Developers struggle to understand unfamiliar codebases. Understanding the structure, responsibilities, and behaviour of an unfamiliar repository can be time-consuming and cognitively demanding.
 
@@ -18,48 +16,34 @@ Common challenges include:
 - onboarding new developers onto existing systems
 
 ## Solution
+RepoWraith builds a local index of a repository and allows users to ask natural language questions about the code.
 
-RepoWraith indexes a repository and allows developers to query it
-using semantic search and a local LLM.
+It works by:
 
-The system indexes a repository by:
-
-- surveying files within the repository
-- splitting files into overlapping chunks
-- generating embedding vectors for each chunk
-- storing embeddings in a lightweight local index
-
-When a developer asks a question, RepoWraith embeds the query, retrieves relevant code fragments using similarity search, and constructs a prompt for a local language model to generate an answer with citations to the original source files.
-
-## Target Users
-
-Developers exploring unfamiliar repositories.
-
-The tool is particularly suited to developers who prefer local tooling and privacy-preserving workflows, as it operates entirely on the developer's machine without requiring external APIs.
+- Scanning and chunking source files
+- Generating embedding vectors
+- Storing data locally in a lightweight database
+- Retrieving relevant code using hybrid search (semantic + lexical/BM25)
+- Generating answers using a local LLM
 
 ## Key Features
+- Fully local processing (no external data sharing)
+- Hybrid retrieval for improved relevance:
+  - Semantic similarity (embeddings)
+  - Lexical relevance (BM25 scoring)
+- Lightweight and fast indexing
+- Clear traceability (file paths + line ranges)
+- Simple CLI interface
 
-### Repository Indexing
+## Target Users
+- Developers exploring unfamiliar codebases
+- Engineers onboarding onto new projects
+- Privacy-conscious teams working with sensitive code
 
-RepoWraith surveys a repository and builds a searchable semantic index of its contents.
+## Value Proposition
+RepoWraith provides fast, private, and accurate code understanding by combining modern LLM capabilities with traditional information retrieval techniques.
 
-### Semantic Code Search
-
-Developers can locate relevant code fragments using meaning-based search rather than relying solely on keyword matching.
-
-### Natural Language Questions
-
-Developers can ask questions about the codebase in natural language and receive responses grounded in retrieved source code.
-
-### Local-First Architecture
-
-All indexing, embedding, and inference operations run locally, ensuring privacy and eliminating dependency on external services.
-
-## Future Opportunities
-
-Potential future enhancements include:
-
-- structure-aware chunking based on functions and classes
-- IDE integrations
-- automated documentation generation
-- architectural summaries of repositories
+## Future Vision
+- Structure-aware chunking (AST-based)
+- Ranking improvements and tuning
+- Lightweight UI for browsing results

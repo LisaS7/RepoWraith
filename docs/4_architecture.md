@@ -4,6 +4,7 @@ This diagram illustrates the high-level architecture of RepoWraith,
 showing the indexing pipeline used to build the repository index
 and the query pipeline used to answer developer questions.
 
+
 ```mermaid
 flowchart LR
 
@@ -16,34 +17,36 @@ flowchart LR
             survey[Repository Survey]
             split[Chunk Splitter]
             embed[Embedding Generator]
-            store[(SQLite Vector Store)]
+            store[SQLite Index]
         end
 
         subgraph Query Pipeline
             qembed[Query Embedding]
-            retrieve[Similarity Retrieval]
-            prompt[Prompt Assembly]
+            retrieve[Hybrid Retrieval]
+            prompt[Prompt Builder]
+            llmstep[Local LLM Answer]
         end
     end
 
     repo[(Local Repository)]
-    ollama[Ollama LLM / Embeddings]
+    ollama[Ollama API]
 
     dev --> cli
 
     cli --> survey
-    survey --> repo
+    survey -->|reads files| repo
 
     survey --> split
     split --> embed
-    embed --> ollama
+    embed -->|/api/embed| ollama
     embed --> store
 
     cli --> qembed
-    qembed --> ollama
+    qembed -->|/api/embed| ollama
     qembed --> retrieve
-    retrieve --> store
+    retrieve -->|loads chunks| store
     retrieve --> prompt
-    prompt --> ollama
-    prompt --> dev
+    prompt --> llmstep
+    llmstep -->|/api/generate| ollama
+    llmstep --> dev
 ```
