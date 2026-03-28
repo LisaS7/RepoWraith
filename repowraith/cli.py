@@ -101,10 +101,16 @@ def cmd_ingest(args):
 
 
 def cmd_ask(args):
-    repo_path = Path(args.path)
+    repo_path = Path(args.path).resolve()
 
     print("Retrieving relevant chunks...")
     retrieved_chunks = retrieve(args.question, repo_path, verbose=args.verbose)
+
+    if not retrieved_chunks:
+        print()
+        print("No index found for this repository.")
+        print(f"Run `repowraith ingest {repo_path}` first, then try again.")
+        return
 
     for item in retrieved_chunks:
         chunk = item.embedded_chunk.chunk
