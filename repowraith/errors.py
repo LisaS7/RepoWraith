@@ -1,4 +1,8 @@
-class OllamaError(RuntimeError):
+class RepoWraithError(RuntimeError):
+    """Base error for RepoWraith failures."""
+
+
+class OllamaError(RepoWraithError):
     """Base error for Ollama API failures."""
 
 

@@ -1,7 +1,9 @@
 import argparse
+import sys
 from pathlib import Path
 
 from repowraith.embed import embed_chunks
+from repowraith.errors import RepoWraithError
 from repowraith.llm import ask_llm
 from repowraith.prompt import build_prompt
 from repowraith.retrieve import retrieve
@@ -136,7 +138,11 @@ def cmd_ask(args):
 
 def main():
     args = parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except RepoWraithError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
