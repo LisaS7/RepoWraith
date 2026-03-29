@@ -1,3 +1,4 @@
+import logging
 import math
 import re
 from pathlib import Path
@@ -91,7 +92,6 @@ def retrieve_chunks(
     query_embedding: list[float],
     repo_path: Path,
     k: int = DEFAULT_TOP_K,
-    verbose: bool = False,
 ) -> list[RetrievedChunk]:
     embedded_chunks = load_chunks(repo_path)
     total_docs = len(embedded_chunks)
@@ -131,23 +131,23 @@ def retrieve_chunks(
         reverse=True,
     )
 
-    if verbose:
-        print("\n--- Retrieval Debug ---")
-        for item in scored_chunks:
-            chunk = item["retrieved_chunk"].embedded_chunk.chunk
-            print(
-                f"{chunk.file_path}:{chunk.start_line}-{chunk.end_line} "
-                f"semantic={item['semantic_score']:.4f} "
-                f"lexical={item['lexical_score']:.4f} "
-                f"total={item['retrieved_chunk'].score:.4f}"
-            )
-        print("-" * 60)
+    logger = logging.getLogger(__name__)
+    logger.debug("--- Retrieval Debug ---")
+    for item in scored_chunks:
+        chunk = item["retrieved_chunk"].embedded_chunk.chunk
+        logger.debug(
+            "%s:%d-%d semantic=%.4f lexical=%.4f total=%.4f",
+            chunk.file_path,
+            chunk.start_line,
+            chunk.end_line,
+            item["semantic_score"],
+            item["lexical_score"],
+            item["retrieved_chunk"].score,
+        )
 
     return [item["retrieved_chunk"] for item in scored_chunks[:k]]
 
 
-def retrieve(
-    query: str, repo_path: Path, verbose: bool = False
-) -> list[RetrievedChunk]:
+def retrieve(query: str, repo_path: Path) -> list[RetrievedChunk]:
     query_embedding = embed_text(query)
-    return retrieve_chunks(query, query_embedding, repo_path, verbose=verbose)
+    return retrieve_chunks(query, query_embedding, repo_path)

@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 from pathlib import Path
 
@@ -105,8 +106,11 @@ def cmd_ingest(args):
 def cmd_ask(args):
     repo_path = Path(args.path).resolve()
 
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+
     print("Retrieving relevant chunks...")
-    retrieved_chunks = retrieve(args.question, repo_path, verbose=args.verbose)
+    retrieved_chunks = retrieve(args.question, repo_path)
 
     if not retrieved_chunks:
         print()
@@ -124,7 +128,7 @@ def cmd_ask(args):
             print("-" * 60)
 
     print("Building prompt...")
-    prompt = build_prompt(args.question, retrieved_chunks, verbose=args.verbose)
+    prompt = build_prompt(args.question, retrieved_chunks)
 
     print("Querying LLM...")
     answer = ask_llm(prompt)

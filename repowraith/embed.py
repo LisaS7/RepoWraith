@@ -31,14 +31,9 @@ def embed_text(text: str, model: str = EMBED_MODEL) -> list[float]:
 
 def embed_chunks(chunks: list[Chunk]) -> list[EmbeddedChunk]:
     embedded_chunks = []
-    total = len(chunks)
-
-    for index, chunk in enumerate(chunks, start=1):
+    for chunk in chunks:
         vector = embed_text(chunk.text)
         embedded = EmbeddedChunk(chunk=chunk, embedding=vector)
         embedded_chunks.append(embedded)
 
-        print(f"Embedding chunks: {index}/{total}", end="\r")
-
-    print()
     return embedded_chunks
