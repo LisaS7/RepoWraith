@@ -31,12 +31,6 @@ def build_prompt(
     prompt = template_text.format(question=question, context=context_text)
 
     logger = logging.getLogger(__name__)
-    logger.debug("--- Prompt Debug ---")
-    logger.debug("Question: %s", question)
-    logger.debug("Chunks used: %d", len(top_chunks))
-    for i, chunk in enumerate(top_chunks, start=1):
-        c = chunk.embedded_chunk.chunk
-        logger.debug("[%d] %s:%d-%d", i, c.file_path, c.start_line, c.end_line)
-    logger.debug("Prompt length: %d chars", len(prompt))
+    logger.debug("Prompt: %d chunks, %d chars", len(top_chunks), len(prompt))
 
     return prompt

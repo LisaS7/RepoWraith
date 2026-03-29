@@ -108,6 +108,7 @@ def cmd_ask(args):
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+        logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     print("Retrieving relevant chunks...")
     retrieved_chunks = retrieve(args.question, repo_path)
