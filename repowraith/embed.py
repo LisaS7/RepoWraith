@@ -1,36 +1,12 @@
-import requests
-
-from repowraith.config import EMBED_MODEL, OLLAMA_EMBED_URL, REQUEST_TIMEOUT_SECONDS
-from repowraith.errors import OllamaConnectionError, OllamaResponseError
+from repowraith.config import EMBED_MODEL, OLLAMA_EMBED_URL
+from repowraith.errors import OllamaResponseError
 from repowraith.models import Chunk, EmbeddedChunk
+from repowraith.ollama import post_to_ollama
 
 
 def embed_text(text: str, model: str = EMBED_MODEL) -> list[float]:
     body = {"model": model, "input": text}
-
-    try:
-        response = requests.post(
-            OLLAMA_EMBED_URL, json=body, timeout=REQUEST_TIMEOUT_SECONDS
-        )
-        response.raise_for_status()
-    except requests.Timeout as exc:
-        raise OllamaConnectionError(
-            f"Timed out waiting for Ollama embeddings response from "
-            f"{OLLAMA_EMBED_URL} using model '{model}'."
-        ) from exc
-    except requests.ConnectionError as exc:
-        raise OllamaConnectionError(
-            f"Could not connect to Ollama at {OLLAMA_EMBED_URL}. " f"Is Ollama running?"
-        ) from exc
-    except requests.RequestException as exc:
-        raise OllamaConnectionError(f"Ollama embed request failed: {exc}") from exc
-
-    try:
-        response_json = response.json()
-    except ValueError as exc:
-        raise OllamaResponseError(
-            "Ollama returned invalid JSON for embeddings request."
-        ) from exc
+    response_json = post_to_ollama(OLLAMA_EMBED_URL, body, context="embed")
 
     embeddings = response_json.get("embeddings")
 
