@@ -3,7 +3,7 @@ import math
 import re
 from pathlib import Path
 
-from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, LEXICAL_WEIGHT, STOP_WORDS
+from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, FILENAME_WEIGHT, LEXICAL_WEIGHT, STOP_WORDS
 from repowraith.embed import embed_text
 from repowraith.models import EmbeddedChunk, RetrievedChunk
 from repowraith.store import load_chunks
@@ -87,6 +87,23 @@ def bm25_score(
     return score
 
 
+def filename_score(query: str, file_path: str) -> float:
+    path_tokens = set()
+    for part in re.split(r"[/\\.]", file_path):
+        path_tokens.update(tokenize(part))
+
+    query_terms = tokenize_query(query)
+    # Count how many query terms match at least one path token.
+    # A match is either exact ("config" == "config") or a path token that is a
+    # substring of the query term ("config" in "configs") — with a min length of
+    # 4 to prevent short tokens like "py" from matching words like "types".
+    matches = sum(
+        1 for term in query_terms
+        if any(term == tok or (len(tok) >= 4 and tok in term) for tok in path_tokens)
+    )
+    return float(matches)
+
+
 def retrieve_chunks(
     query: str,
     query_embedding: list[float],
@@ -115,7 +132,8 @@ def retrieve_chunks(
             total_docs=total_docs,
             average_doc_length=average_doc_length,
         )
-        score = semantic_score + LEXICAL_WEIGHT * lexical_score
+        file_score = filename_score(query, str(embedded_chunk.chunk.file_path))
+        score = semantic_score + LEXICAL_WEIGHT * lexical_score + FILENAME_WEIGHT * file_score
 
         retrieved_chunk = RetrievedChunk(embedded_chunk=embedded_chunk, score=score)
         scored_chunks.append(
@@ -123,6 +141,7 @@ def retrieve_chunks(
                 "retrieved_chunk": retrieved_chunk,
                 "semantic_score": semantic_score,
                 "lexical_score": lexical_score,
+                "file_score": file_score,
             }
         )
 
@@ -136,12 +155,13 @@ def retrieve_chunks(
     for item in scored_chunks:
         chunk = item["retrieved_chunk"].embedded_chunk.chunk
         logger.debug(
-            "%s:%d-%d semantic=%.4f lexical=%.4f total=%.4f",
+            "%s:%d-%d semantic=%.4f lexical=%.4f file=%.4f total=%.4f",
             chunk.file_path,
             chunk.start_line,
             chunk.end_line,
             item["semantic_score"],
             item["lexical_score"],
+            item["file_score"],
             item["retrieved_chunk"].score,
         )
 
