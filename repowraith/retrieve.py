@@ -3,7 +3,7 @@ import math
 import re
 from pathlib import Path
 
-from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, FILENAME_WEIGHT, LEXICAL_WEIGHT, STOP_WORDS
+from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, FILENAME_WEIGHT, LEXICAL_WEIGHT, STOP_WORDS, TEST_FILE_WEIGHT
 from repowraith.embed import embed_text
 from repowraith.models import EmbeddedChunk, RetrievedChunk
 from repowraith.store import load_chunks
@@ -104,6 +104,15 @@ def filename_score(query: str, file_path: str) -> float:
     return float(matches)
 
 
+def is_test_file(file_path: str) -> bool:
+    parts = re.split(r"[/\\]", file_path)
+    return any(p == "tests" or p.startswith("test_") or p.endswith("_test.py") for p in parts)
+
+
+def query_is_about_tests(query: str) -> bool:
+    return bool({"test", "tests", "testing"} & set(tokenize_query(query)))
+
+
 def retrieve_chunks(
     query: str,
     query_embedding: list[float],
@@ -134,6 +143,11 @@ def retrieve_chunks(
         )
         file_score = filename_score(query, str(embedded_chunk.chunk.file_path))
         score = semantic_score + LEXICAL_WEIGHT * lexical_score + FILENAME_WEIGHT * file_score
+        # Test files tend to dominate lexical scoring because they repeat function/variable
+        # names from the code they test. Penalise them unless the query is about testing.
+        test_penalized = is_test_file(str(embedded_chunk.chunk.file_path)) and not query_is_about_tests(query)
+        if test_penalized:
+            score *= TEST_FILE_WEIGHT
 
         retrieved_chunk = RetrievedChunk(embedded_chunk=embedded_chunk, score=score)
         scored_chunks.append(
@@ -142,6 +156,7 @@ def retrieve_chunks(
                 "semantic_score": semantic_score,
                 "lexical_score": lexical_score,
                 "file_score": file_score,
+                "test_penalized": test_penalized,
             }
         )
 
@@ -155,7 +170,7 @@ def retrieve_chunks(
     for item in scored_chunks:
         chunk = item["retrieved_chunk"].embedded_chunk.chunk
         logger.debug(
-            "%s:%d-%d semantic=%.4f lexical=%.4f file=%.4f total=%.4f",
+            "%s:%d-%d semantic=%.4f lexical=%.4f file=%.4f total=%.4f test_penalized=%s",
             chunk.file_path,
             chunk.start_line,
             chunk.end_line,
@@ -163,6 +178,7 @@ def retrieve_chunks(
             item["lexical_score"],
             item["file_score"],
             item["retrieved_chunk"].score,
+            item["test_penalized"],
         )
 
     return [item["retrieved_chunk"] for item in scored_chunks[:k]]
