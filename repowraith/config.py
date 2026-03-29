@@ -26,7 +26,7 @@ OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
 LLM_MODEL = "llama3"
 EMBED_MODEL = "embeddinggemma"
 
-REQUEST_TIMEOUT_SECONDS = 30
+REQUEST_TIMEOUT_SECONDS = 45
 
 # ═════════════════ RETRIEVAL ══════════════
 
