@@ -3,7 +3,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from repowraith.models import EmbeddedChunk
+from repowraith.models import Chunk, EmbeddedChunk
 from repowraith.schema import (
     CREATE_CHUNKS_REPO_INDEX,
     CREATE_CHUNKS_TABLE,
@@ -113,6 +113,33 @@ def insert_chunks(
         "INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding) VALUES (?, ?, ?, ?, ?, ?)",
         rows,
     )
+
+
+def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
+    with get_connection(repo_path) as conn:
+        repo_id = get_repo_id(conn, repo_path)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT file_path, start_line, end_line, text, embedding FROM chunks WHERE repo_id = ?",
+            (repo_id,),
+        )
+        rows = cursor.fetchall()
+
+    chunks = []
+    for row in rows:
+        chunk = Chunk(
+            file_path=Path(row["file_path"]),
+            start_line=row["start_line"],
+            end_line=row["end_line"],
+            text=row["text"],
+        )
+        embedded_chunk = EmbeddedChunk(
+            chunk=chunk,
+            embedding=json.loads(row["embedding"]),
+        )
+        chunks.append(embedded_chunk)
+
+    return chunks
 
 
 def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> None:

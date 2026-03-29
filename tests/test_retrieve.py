@@ -8,11 +8,10 @@ from repowraith.retrieve import (
     bm25_score,
     compute_document_frequencies,
     cosine_similarity,
-    load_chunks,
     retrieve_chunks,
     tokenize,
 )
-from repowraith.store import get_connection, init_db
+from repowraith.store import get_connection, init_db, load_chunks
 
 
 def insert_repository(cursor, repo_path: Path) -> int:

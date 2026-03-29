@@ -1,12 +1,11 @@
-import json
 import math
 import re
 from pathlib import Path
 
 from repowraith.config import BM25_B, BM25_K1, DEFAULT_TOP_K, LEXICAL_WEIGHT, STOP_WORDS
 from repowraith.embed import embed_text
-from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
-from repowraith.store import get_connection, get_repo_id
+from repowraith.models import EmbeddedChunk, RetrievedChunk
+from repowraith.store import load_chunks
 
 
 def tokenize(text: str) -> list[str]:
@@ -85,34 +84,6 @@ def bm25_score(
         score += idf * (numerator / denominator)
 
     return score
-
-
-def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
-
-    with get_connection(repo_path) as conn:
-        repo_id = get_repo_id(conn, repo_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT file_path, start_line, end_line, text, embedding FROM chunks WHERE repo_id = ?",
-            (repo_id,),
-        )
-        rows = cursor.fetchall()
-
-    chunks = []
-    for row in rows:
-        chunk = Chunk(
-            file_path=Path(row["file_path"]),
-            start_line=row["start_line"],
-            end_line=row["end_line"],
-            text=row["text"],
-        )
-        embedded_chunk = EmbeddedChunk(
-            chunk=chunk,
-            embedding=json.loads(row["embedding"]),
-        )
-        chunks.append(embedded_chunk)
-
-    return chunks
 
 
 def retrieve_chunks(
