@@ -1,5 +1,4 @@
-import tempfile
-from pathlib import Path
+import pytest
 
 from repowraith.embed import embed_chunks
 from repowraith.llm import ask_llm
@@ -9,55 +8,56 @@ from repowraith.splitter import split_repository
 from repowraith.store import get_connection, index_repository
 from repowraith.survey import survey_repository
 
-with tempfile.TemporaryDirectory() as tmp_dir:
-    repo_path = Path(tmp_dir)
 
-    (repo_path / "README.md").write_text(
+@pytest.mark.integration
+def test_full_pipeline(tmp_path):
+    (tmp_path / "README.md").write_text(
         "# Test repo\nThis project demonstrates indexing.\n",
         encoding="utf-8",
     )
-    (repo_path / "app.py").write_text(
+    (tmp_path / "app.py").write_text(
         "def main():\n    print('hello world')\n",
         encoding="utf-8",
     )
-    (repo_path / "utils.py").write_text(
+    (tmp_path / "utils.py").write_text(
         "def add(a, b):\n    return a + b\n",
         encoding="utf-8",
     )
 
-    files = survey_repository(repo_path)
-    print(f"Files discovered: {len(files)}")
+    # Survey
+    files = survey_repository(tmp_path)
+    assert len(files) == 3
 
+    # Split
     chunks = split_repository(files)
-    print(f"Chunks created: {len(chunks)}")
+    assert len(chunks) > 0
 
+    # Embed
     embedded_chunks = embed_chunks(chunks)
-    print(f"Embedded chunks: {len(embedded_chunks)}")
+    assert len(embedded_chunks) == len(chunks)
 
-    index_repository(repo_path, embedded_chunks)
-    print("Indexing complete.")
+    # Store
+    index_repository(tmp_path, embedded_chunks)
 
-    with get_connection(repo_path) as conn:
+    with get_connection(tmp_path) as conn:
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM repositories")
-        print("Repositories:", [dict(row) for row in cursor.fetchall()])
+        cursor.execute("SELECT COUNT(*) FROM repositories")
+        assert cursor.fetchone()[0] == 1
 
         cursor.execute("SELECT COUNT(*) FROM chunks")
-        print("Chunk count:", cursor.fetchone()[0])
+        assert cursor.fetchone()[0] == len(chunks)
 
-    retrieved_chunks = retrieve("Where is the hello world code?", repo_path, k=3)
+    # Retrieve
+    retrieved_chunks = retrieve("Where is the hello world code?", tmp_path, k=3)
+    assert len(retrieved_chunks) > 0
+    assert len(retrieved_chunks) <= 3
 
-    prompt = build_prompt(
-        "Where is hello world printed?",
-        retrieved_chunks,
-        k=3,
-    )
+    # Prompt
+    prompt = build_prompt("Where is hello world printed?", retrieved_chunks, k=3)
+    assert len(prompt) > 0
+    assert "hello world" in prompt
 
-    print("\n--- PROMPT BUILT ---\n")
-    print(prompt)
-
+    # LLM
     answer = ask_llm(prompt)
-
-    print("\n--- ANSWER ---\n")
-    print(answer)
+    assert len(answer) > 0
