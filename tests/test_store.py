@@ -4,8 +4,7 @@ import time
 
 import pytest
 
-from repowraith.embed import EmbeddedChunk
-from repowraith.splitter import Chunk
+from repowraith.models import Chunk, EmbeddedChunk
 from repowraith.store import (
     delete_chunks_for_repo,
     get_connection,
