@@ -143,8 +143,12 @@ def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
 
 
 def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> None:
-    with get_connection(repo_path) as conn:
+    conn = get_connection(repo_path)
+    try:
         init_db(conn)
-        repo_id = upsert_repository(conn, repo_path)
-        delete_chunks_for_repo(conn, repo_id)
-        insert_chunks(conn, repo_id, repo_path, embedded_chunks)
+        with conn:
+            repo_id = upsert_repository(conn, repo_path)
+            delete_chunks_for_repo(conn, repo_id)
+            insert_chunks(conn, repo_id, repo_path, embedded_chunks)
+    finally:
+        conn.close()
