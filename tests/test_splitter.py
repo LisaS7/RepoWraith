@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from repowraith.splitter import CHUNK_SIZE, OVERLAP, Chunk, split_file, split_repository
+from repowraith.models import Chunk
+from repowraith.splitter import CHUNK_SIZE, OVERLAP, split_file, split_repository
 from tests.helpers import create_test_file
 
 
