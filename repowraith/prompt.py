@@ -4,6 +4,8 @@ from pathlib import Path
 from repowraith.config import DEFAULT_TOP_K
 from repowraith.models import RetrievedChunk
 
+_TEMPLATE = (Path(__file__).parent / "prompt_template.txt").read_text(encoding="utf-8")
+
 
 def format_chunk(retrieved_chunk: RetrievedChunk, index: int) -> str:
     chunk = retrieved_chunk.embedded_chunk.chunk
@@ -24,11 +26,8 @@ def build_prompt(
         chunk_str = format_chunk(retrieved_chunk, index)
         formatted_chunks.append(chunk_str)
 
-    template_path = Path(__file__).parent / "prompt_template.txt"
-    template_text = template_path.read_text(encoding="utf-8")
-
     context_text = "\n\n".join(formatted_chunks)
-    prompt = template_text.format(question=question, context=context_text)
+    prompt = _TEMPLATE.format(question=question, context=context_text)
 
     logger = logging.getLogger(__name__)
     logger.debug("Prompt: %d chunks, %d chars", len(top_chunks), len(prompt))
