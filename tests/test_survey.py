@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from repowraith.survey import survey_repository
 from tests.helpers import create_test_repo
 
@@ -29,3 +31,16 @@ def test_survey_repository_ignores_paths(tmp_path: Path) -> None:
 
     # All is in order
     assert stringy_paths == sorted(stringy_paths)
+
+
+def test_survey_raises_for_nonexistent_path(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        survey_repository(tmp_path / "does_not_exist")
+
+
+def test_survey_raises_for_non_directory(tmp_path: Path) -> None:
+    file = tmp_path / "some_file.txt"
+    file.write_text("content", encoding="utf-8")
+
+    with pytest.raises(NotADirectoryError):
+        survey_repository(file)

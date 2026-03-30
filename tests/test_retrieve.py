@@ -12,6 +12,7 @@ from repowraith.retrieve import (
     query_is_about_tests,
     retrieve_chunks,
     tokenize,
+    tokenize_query,
 )
 from repowraith.store import get_connection, init_db, insert_chunks, load_chunks, upsert_repository
 
@@ -26,6 +27,15 @@ def test_tokenize_expands_underscores_into_sub_tokens():
 
 def test_tokenize_skips_empty_parts_from_leading_trailing_underscores():
     assert tokenize("_private_") == ["_private_", "private"]
+
+
+def test_tokenize_query_strips_stop_words():
+    # "how", "the", "work" are stop words; "retrieval" is not
+    result = tokenize_query("how does the retrieval work")
+    assert "retrieval" in result
+    assert "how" not in result
+    assert "the" not in result
+    assert "work" not in result
 
 
 def test_cosine_similarity():
@@ -383,3 +393,40 @@ def test_retrieve_chunks_does_not_penalize_test_files_for_test_query(tmp_path):
     results = retrieve_chunks("where are the tests", [1.0, 0.0], tmp_path, k=1)
 
     assert results[0].test_penalized is False
+
+
+# ═════════════════ filename ranking ═════════════════
+
+
+def test_retrieve_chunks_filename_match_boosts_ranking(tmp_path):
+    # Both chunks have identical text and embeddings, so semantic and lexical
+    # scores are equal. The chunk whose filename matches the query should rank
+    # higher due to the filename score contribution.
+    with get_connection(tmp_path) as conn:
+        init_db(conn)
+        repo_id = upsert_repository(conn, tmp_path)
+        insert_chunks(conn, repo_id, tmp_path, [
+            EmbeddedChunk(
+                chunk=Chunk(
+                    file_path=tmp_path / "retrieve.py",
+                    start_line=1,
+                    end_line=5,
+                    text="some generic code",
+                ),
+                embedding=[1.0, 0.0],
+            ),
+            EmbeddedChunk(
+                chunk=Chunk(
+                    file_path=tmp_path / "unrelated.py",
+                    start_line=1,
+                    end_line=5,
+                    text="some generic code",
+                ),
+                embedding=[1.0, 0.0],
+            ),
+        ])
+
+    results = retrieve_chunks("retrieve chunks", [1.0, 0.0], tmp_path, k=2)
+
+    file_paths = [str(r.chunk.file_path) for r in results]
+    assert file_paths.index("retrieve.py") < file_paths.index("unrelated.py")

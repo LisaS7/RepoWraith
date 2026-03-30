@@ -1,6 +1,9 @@
 from unittest.mock import Mock, patch
 
+import pytest
+
 from repowraith.config import OLLAMA_GENERATE_URL, REQUEST_TIMEOUT_SECONDS
+from repowraith.errors import OllamaResponseError
 from repowraith.llm import ask_llm
 
 
@@ -35,3 +38,36 @@ def test_ask_llm_returns_response_text(mock_post):
     result = ask_llm("Where is the hello world code?")
 
     assert result == "The hello world code is in app.py."
+
+
+@patch("repowraith.ollama.requests.post")
+def test_ask_llm_raises_when_response_field_is_absent(mock_post):
+    mock_response = Mock()
+    mock_response.json.return_value = {}
+    mock_response.raise_for_status.return_value = None
+    mock_post.return_value = mock_response
+
+    with pytest.raises(OllamaResponseError, match="missing non-empty 'response'"):
+        ask_llm("What does this do?")
+
+
+@patch("repowraith.ollama.requests.post")
+def test_ask_llm_raises_when_response_field_is_empty_string(mock_post):
+    mock_response = Mock()
+    mock_response.json.return_value = {"response": "   "}
+    mock_response.raise_for_status.return_value = None
+    mock_post.return_value = mock_response
+
+    with pytest.raises(OllamaResponseError, match="missing non-empty 'response'"):
+        ask_llm("What does this do?")
+
+
+@patch("repowraith.ollama.requests.post")
+def test_ask_llm_raises_when_response_field_is_not_a_string(mock_post):
+    mock_response = Mock()
+    mock_response.json.return_value = {"response": 42}
+    mock_response.raise_for_status.return_value = None
+    mock_post.return_value = mock_response
+
+    with pytest.raises(OllamaResponseError, match="missing non-empty 'response'"):
+        ask_llm("What does this do?")

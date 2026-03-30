@@ -10,8 +10,10 @@ from repowraith.store import (
     get_connection,
     get_db_path,
     get_repo_id,
+    index_repository,
     init_db,
     insert_chunks,
+    load_chunks,
     upsert_repository,
 )
 
@@ -241,3 +243,24 @@ def test_insert_chunks_multiple_rows(tmp_path) -> None:
 
         assert len(rows) == 2
         assert {row["file_path"] for row in rows} == {"folder/one.py", "folder/two.py"}
+
+
+def test_index_repository_replaces_chunks_on_reingest(tmp_path) -> None:
+    def make_chunk(filename: str, text: str) -> EmbeddedChunk:
+        return EmbeddedChunk(
+            chunk=Chunk(
+                file_path=tmp_path / filename,
+                start_line=1,
+                end_line=3,
+                text=text,
+            ),
+            embedding=[0.1, 0.2, 0.3],
+        )
+
+    index_repository(tmp_path, [make_chunk("v1.py", "first ingest")])
+    index_repository(tmp_path, [make_chunk("v2.py", "second ingest")])
+
+    chunks = load_chunks(tmp_path)
+
+    assert len(chunks) == 1
+    assert chunks[0].chunk.text == "second ingest"

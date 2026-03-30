@@ -3,7 +3,7 @@ from unittest.mock import call, patch
 
 import pytest
 
-from repowraith.embed import embed_chunks
+from repowraith.embed import embed_chunks, embed_text
 from repowraith.errors import OllamaConnectionError, OllamaResponseError
 from repowraith.models import Chunk, EmbeddedChunk
 
@@ -71,6 +71,53 @@ def test_embed_chunks_propagates_ollama_connection_error() -> None:
     ):
         with pytest.raises(OllamaConnectionError, match="Ollama not running"):
             embed_chunks(chunks)
+
+
+# ═════════════════ embed_text ═════════════════
+
+
+@patch("repowraith.embed.post_to_ollama")
+def test_embed_text_returns_inner_embedding_vector(mock_post) -> None:
+    mock_post.return_value = {"embeddings": [[0.1, 0.2, 0.3]]}
+
+    result = embed_text("hello world")
+
+    assert result == [0.1, 0.2, 0.3]
+
+
+@patch("repowraith.embed.post_to_ollama")
+def test_embed_text_raises_when_embeddings_key_missing(mock_post) -> None:
+    mock_post.return_value = {}
+
+    with pytest.raises(OllamaResponseError, match="missing non-empty 'embeddings'"):
+        embed_text("hello")
+
+
+@patch("repowraith.embed.post_to_ollama")
+def test_embed_text_raises_when_embeddings_list_is_empty(mock_post) -> None:
+    mock_post.return_value = {"embeddings": []}
+
+    with pytest.raises(OllamaResponseError, match="missing non-empty 'embeddings'"):
+        embed_text("hello")
+
+
+@patch("repowraith.embed.post_to_ollama")
+def test_embed_text_raises_when_inner_vector_is_empty(mock_post) -> None:
+    mock_post.return_value = {"embeddings": [[]]}
+
+    with pytest.raises(OllamaResponseError, match="invalid embedding vector"):
+        embed_text("hello")
+
+
+@patch("repowraith.embed.post_to_ollama")
+def test_embed_text_raises_when_inner_vector_contains_non_numeric(mock_post) -> None:
+    mock_post.return_value = {"embeddings": [["not", "a", "float"]]}
+
+    with pytest.raises(OllamaResponseError, match="non-numeric"):
+        embed_text("hello")
+
+
+# ═════════════════ embed_chunks ═════════════════
 
 
 def test_embed_chunks_propagates_ollama_response_error() -> None:
