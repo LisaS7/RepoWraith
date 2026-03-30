@@ -83,7 +83,7 @@ def test_compute_document_frequencies_counts_each_term_once_per_document():
         ),
     ]
 
-    doc_freqs = compute_document_frequencies(chunks)
+    doc_freqs = compute_document_frequencies([tokenize(c.chunk.text) for c in chunks])
 
     assert doc_freqs["sqlite"] == 2
     assert doc_freqs["retrieval"] == 1
@@ -202,20 +202,21 @@ def test_bm25_scores_matching_text_higher():
         ),
     ]
 
-    document_frequencies = compute_document_frequencies(chunks)
+    tokenized_texts = [tokenize(c.chunk.text) for c in chunks]
+    document_frequencies = compute_document_frequencies(tokenized_texts)
     total_docs = len(chunks)
-    average_doc_length = sum(len(tokenize(c.chunk.text)) for c in chunks) / total_docs
+    average_doc_length = sum(len(t) for t in tokenized_texts) / total_docs
 
     matching_score = bm25_score(
         query="sqlite repo",
-        text=matching_text,
+        tokens=tokenize(matching_text),
         document_frequencies=document_frequencies,
         total_docs=total_docs,
         average_doc_length=average_doc_length,
     )
     non_matching_score = bm25_score(
         query="sqlite repo",
-        text=non_matching_text,
+        tokens=tokenize(non_matching_text),
         document_frequencies=document_frequencies,
         total_docs=total_docs,
         average_doc_length=average_doc_length,
@@ -249,20 +250,21 @@ def test_bm25_rewards_higher_term_frequency():
         ),
     ]
 
-    document_frequencies = compute_document_frequencies(chunks)
+    tokenized_texts = [tokenize(c.chunk.text) for c in chunks]
+    document_frequencies = compute_document_frequencies(tokenized_texts)
     total_docs = len(chunks)
-    average_doc_length = sum(len(tokenize(c.chunk.text)) for c in chunks) / total_docs
+    average_doc_length = sum(len(t) for t in tokenized_texts) / total_docs
 
     score_one = bm25_score(
         query="sqlite",
-        text=text_with_one,
+        tokens=tokenize(text_with_one),
         document_frequencies=document_frequencies,
         total_docs=total_docs,
         average_doc_length=average_doc_length,
     )
     score_three = bm25_score(
         query="sqlite",
-        text=text_with_three,
+        tokens=tokenize(text_with_three),
         document_frequencies=document_frequencies,
         total_docs=total_docs,
         average_doc_length=average_doc_length,
@@ -284,11 +286,11 @@ def test_bm25_score_is_zero_when_query_terms_are_absent():
         )
     ]
 
-    document_frequencies = compute_document_frequencies(chunks)
+    document_frequencies = compute_document_frequencies([tokenize(c.chunk.text) for c in chunks])
 
     score = bm25_score(
         query="sqlite repo",
-        text="banana lamp velvet octopus",
+        tokens=tokenize("banana lamp velvet octopus"),
         document_frequencies=document_frequencies,
         total_docs=1,
         average_doc_length=4,

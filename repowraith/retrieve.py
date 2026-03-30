@@ -46,12 +46,11 @@ def cosine_similarity(a: list[float], b: list[float]) -> float:
     return dot_product / (magnitude_a * magnitude_b)
 
 
-def compute_document_frequencies(chunks: list[EmbeddedChunk]) -> dict[str, int]:
+def compute_document_frequencies(tokenized_texts: list[list[str]]) -> dict[str, int]:
     doc_freqs = {}
 
-    for embedded_chunk in chunks:
-        unique_terms = set(tokenize(embedded_chunk.chunk.text))
-        for term in unique_terms:
+    for tokens in tokenized_texts:
+        for term in set(tokens):
             doc_freqs[term] = doc_freqs.get(term, 0) + 1
 
     return doc_freqs
@@ -61,24 +60,23 @@ def inverse_document_frequency(term: str, total_docs: int, doc_freq: int) -> flo
     return math.log(1 + (total_docs - doc_freq + 0.5) / (doc_freq + 0.5))
 
 
-def term_frequency(term: str, text: str) -> int:
-    tokens = tokenize(text)
+def term_frequency(term: str, tokens: list[str]) -> int:
     return tokens.count(term)
 
 
 def bm25_score(
     query: str,
-    text: str,
+    tokens: list[str],
     document_frequencies: dict[str, int],
     total_docs: int,
     average_doc_length: float,
 ) -> float:
     score = 0.0
     query_terms = tokenize_query(query)
-    doc_length = len(tokenize(text))
+    doc_length = len(tokens)
 
     for term in query_terms:
-        tf = term_frequency(term, text)
+        tf = term_frequency(term, tokens)
         if tf == 0:
             continue
 
@@ -136,18 +134,16 @@ def retrieve_chunks(
     if total_docs == 0:
         return []
 
-    document_frequencies = compute_document_frequencies(embedded_chunks)
-    doc_lengths = [
-        len(tokenize(embedded_chunk.chunk.text)) for embedded_chunk in embedded_chunks
-    ]
-    average_doc_length = sum(doc_lengths) / total_docs
+    tokenized_texts = [tokenize(ec.chunk.text) for ec in embedded_chunks]
+    document_frequencies = compute_document_frequencies(tokenized_texts)
+    average_doc_length = sum(len(t) for t in tokenized_texts) / total_docs
 
     scored_chunks = []
-    for embedded_chunk in embedded_chunks:
+    for embedded_chunk, tokens in zip(embedded_chunks, tokenized_texts):
         semantic_score = cosine_similarity(query_embedding, embedded_chunk.embedding)
         lexical_score = bm25_score(
             query=query,
-            text=embedded_chunk.chunk.text,
+            tokens=tokens,
             document_frequencies=document_frequencies,
             total_docs=total_docs,
             average_doc_length=average_doc_length,
