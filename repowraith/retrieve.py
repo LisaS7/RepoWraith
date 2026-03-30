@@ -162,30 +162,26 @@ def retrieve_chunks(
         if test_penalized:
             score *= TEST_FILE_WEIGHT
 
-        retrieved_chunk = RetrievedChunk(embedded_chunk=embedded_chunk, score=score)
-        scored_chunks.append(
-            {
-                "retrieved_chunk": retrieved_chunk,
-                "semantic_score": semantic_score,
-                "lexical_score": lexical_score,
-                "file_score": file_score,
-                "test_penalized": test_penalized,
-            }
+        retrieved_chunk = RetrievedChunk(
+            embedded_chunk=embedded_chunk,
+            score=score,
+            semantic_score=semantic_score,
+            lexical_score=lexical_score,
+            file_score=file_score,
+            test_penalized=test_penalized,
         )
+        scored_chunks.append(retrieved_chunk)
 
-    scored_chunks.sort(
-        key=lambda item: item["retrieved_chunk"].score,
-        reverse=True,
-    )
+    scored_chunks.sort(key=lambda rc: rc.score, reverse=True)
 
     logger = logging.getLogger(__name__)
     if logger.isEnabledFor(logging.DEBUG):
         top_items = scored_chunks[:k]
         labels = [
-            f"{item['retrieved_chunk'].embedded_chunk.chunk.file_path}"
-            f":{item['retrieved_chunk'].embedded_chunk.chunk.start_line}"
-            f"-{item['retrieved_chunk'].embedded_chunk.chunk.end_line}"
-            for item in top_items
+            f"{rc.embedded_chunk.chunk.file_path}"
+            f":{rc.embedded_chunk.chunk.start_line}"
+            f"-{rc.embedded_chunk.chunk.end_line}"
+            for rc in top_items
         ]
         col_width = max((len(lb) for lb in labels), default=5)
         col_width = max(col_width, len("chunk"))
@@ -195,24 +191,24 @@ def retrieve_chunks(
         logger.debug("  %-*s    sem    lex   file  total", col_width, "chunk")
         logger.debug(sep)
         any_penalized = False
-        for label, item in zip(labels, top_items):
-            flag = " *" if item["test_penalized"] else "  "
-            any_penalized = any_penalized or item["test_penalized"]
+        for label, rc in zip(labels, top_items):
+            flag = " *" if rc.test_penalized else "  "
+            any_penalized = any_penalized or rc.test_penalized
             logger.debug(
                 "  %-*s  %s %5.3f %5.3f %5.3f %5.3f",
                 col_width,
                 label,
                 flag,
-                item["semantic_score"],
-                item["lexical_score"],
-                item["file_score"],
-                item["retrieved_chunk"].score,
+                rc.semantic_score,
+                rc.lexical_score,
+                rc.file_score,
+                rc.score,
             )
         logger.debug(sep)
         if any_penalized:
             logger.debug("  * test file (score halved)\n\n")
 
-    return [item["retrieved_chunk"] for item in scored_chunks[:k]]
+    return scored_chunks[:k]
 
 
 def retrieve(query: str, repo_path: Path) -> list[RetrievedChunk]:

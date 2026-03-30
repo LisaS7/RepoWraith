@@ -20,3 +20,7 @@ class EmbeddedChunk:
 class RetrievedChunk:
     embedded_chunk: EmbeddedChunk
     score: float
+    semantic_score: float = 0.0
+    lexical_score: float = 0.0
+    file_score: float = 0.0
+    test_penalized: bool = False
