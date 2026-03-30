@@ -9,8 +9,8 @@ DEFAULT_IGNORE_DIRS = {
     ".repowraith",
 }
 
-DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info", ".gitignore"}
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log"}
+DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore"}
 
 # ═════════════════ CHUNKING ═══════════════
 
