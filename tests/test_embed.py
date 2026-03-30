@@ -4,6 +4,7 @@ from unittest.mock import call, patch
 import pytest
 
 from repowraith.embed import EmbeddedChunk, embed_chunks
+from repowraith.errors import OllamaConnectionError, OllamaResponseError
 from repowraith.splitter import Chunk
 
 
@@ -54,7 +55,7 @@ def test_embed_chunks_returns_empty_list_for_no_chunks() -> None:
     assert result == []
 
 
-def test_embed_chunks_raises_if_embed_text_fails() -> None:
+def test_embed_chunks_propagates_ollama_connection_error() -> None:
     chunks = [
         Chunk(
             file_path=Path("a.py"),
@@ -64,6 +65,21 @@ def test_embed_chunks_raises_if_embed_text_fails() -> None:
         )
     ]
 
-    with patch("repowraith.embed.embed_text", side_effect=RuntimeError("boom")):
-        with pytest.raises(RuntimeError, match="boom"):
+    with patch("repowraith.embed.embed_text", side_effect=OllamaConnectionError("Ollama not running")):
+        with pytest.raises(OllamaConnectionError, match="Ollama not running"):
+            embed_chunks(chunks)
+
+
+def test_embed_chunks_propagates_ollama_response_error() -> None:
+    chunks = [
+        Chunk(
+            file_path=Path("a.py"),
+            start_line=1,
+            end_line=3,
+            text="print('hello')",
+        )
+    ]
+
+    with patch("repowraith.embed.embed_text", side_effect=OllamaResponseError("bad response")):
+        with pytest.raises(OllamaResponseError, match="bad response"):
             embed_chunks(chunks)

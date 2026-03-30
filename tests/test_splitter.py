@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from repowraith.splitter import CHUNK_SIZE, OVERLAP, Chunk, split_file, split_repository
 from tests.helpers import create_test_file
 
@@ -30,3 +32,40 @@ def test_split_repository(tmp_path):
 
     expected_count = len(split_file(file1)) + len(split_file(file2))
     assert len(chunks) == expected_count
+
+
+def test_split_file_shorter_than_chunk_size_produces_single_chunk(tmp_path):
+    total_lines = 10
+    test_file = create_test_file(tmp_path, "short.txt", total_lines)
+
+    chunks = split_file(test_file)
+
+    assert len(chunks) == 1
+    assert chunks[0].start_line == 1
+    assert chunks[0].end_line == total_lines
+
+
+def test_split_file_falls_back_to_latin1_for_non_utf8_content(tmp_path):
+    file_path = tmp_path / "latin1.py"
+    # 'é' encoded as latin-1 is 0xe9, which is invalid UTF-8
+    file_path.write_bytes("caf\xe9\n".encode("latin-1"))
+
+    chunks = split_file(file_path)
+
+    assert len(chunks) == 1
+    assert "café" in chunks[0].text
+
+
+def test_split_file_returns_empty_list_when_all_encodings_fail(tmp_path):
+    file_path = tmp_path / "bad.py"
+    file_path.write_bytes(b"content")
+
+    side_effects = [
+        UnicodeDecodeError("utf-8", b"", 0, 1, "invalid byte"),
+        OSError("permission denied"),
+    ]
+
+    with patch("pathlib.Path.read_text", side_effect=side_effects):
+        chunks = split_file(file_path)
+
+    assert chunks == []

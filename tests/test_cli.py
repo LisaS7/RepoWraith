@@ -1,6 +1,6 @@
 from argparse import Namespace
 
-from repowraith.cli import cmd_ingest, cmd_survey, parse_args
+from repowraith.cli import cmd_ask, cmd_ingest, cmd_survey, parse_args
 from tests.helpers import create_test_file, create_test_repo
 
 # ═════════════════ COMMAND FUNCTIONS ══════════════════
@@ -78,3 +78,13 @@ def test_parse_args_ingest():
     args = parse_args(["ingest", "."])
     assert args.command == "ingest"
     assert args.path == "."
+
+
+def test_cmd_ask_prints_no_index_message_when_retrieve_returns_empty(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path: [])
+
+    args = Namespace(path=str(tmp_path), question="what does this do", verbose=False)
+    cmd_ask(args)
+
+    captured = capsys.readouterr()
+    assert "No index found" in captured.out
