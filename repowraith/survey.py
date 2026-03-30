@@ -36,7 +36,7 @@ def survey_repository(
     for path in root.rglob("*"):
         if not path.is_file():
             continue
-        if path.suffix in ignore_extensions:
+        if path.suffix in ignore_extensions or path.name in ignore_extensions:
             continue
 
         # break the path into parts and checks if any of them are in the ignore lists

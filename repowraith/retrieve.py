@@ -211,6 +211,6 @@ def retrieve_chunks(
     return scored_chunks[:k]
 
 
-def retrieve(query: str, repo_path: Path) -> list[RetrievedChunk]:
+def retrieve(query: str, repo_path: Path, k: int = DEFAULT_TOP_K) -> list[RetrievedChunk]:
     query_embedding = embed_text(query)
-    return retrieve_chunks(query, query_embedding, repo_path)
+    return retrieve_chunks(query, query_embedding, repo_path, k)
