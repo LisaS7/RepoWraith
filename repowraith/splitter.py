@@ -9,7 +9,13 @@ from repowraith.models import Chunk
 
 
 def split_file(path: Path) -> list[Chunk]:
-    content = path.read_text(encoding="utf-8").splitlines()
+    try:
+        content = path.read_text(encoding="utf-8").splitlines()
+    except UnicodeDecodeError:
+        try:
+            content = path.read_text(encoding="latin-1").splitlines()
+        except Exception:
+            return []
     total_lines = len(content)
 
     start = 0
