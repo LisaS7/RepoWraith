@@ -178,9 +178,9 @@ def retrieve_chunks(
     if logger.isEnabledFor(logging.DEBUG):
         top_items = scored_chunks[:k]
         labels = [
-            f"{rc.embedded_chunk.chunk.file_path}"
-            f":{rc.embedded_chunk.chunk.start_line}"
-            f"-{rc.embedded_chunk.chunk.end_line}"
+            f"{rc.chunk.file_path}"
+            f":{rc.chunk.start_line}"
+            f"-{rc.chunk.end_line}"
             for rc in top_items
         ]
         col_width = max((len(lb) for lb in labels), default=5)

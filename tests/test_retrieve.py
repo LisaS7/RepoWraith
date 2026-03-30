@@ -144,8 +144,8 @@ def test_retrieve_chunks_returns_best_match_first(tmp_path):
     results = retrieve_chunks("best chunk", [1.0, 0.0], tmp_path, k=2)
 
     assert len(results) == 2
-    assert results[0].embedded_chunk.chunk.file_path == Path("good_match.py")
-    assert results[1].embedded_chunk.chunk.file_path == Path("bad_match.py")
+    assert results[0].chunk.file_path == Path("good_match.py")
+    assert results[1].chunk.file_path == Path("bad_match.py")
     assert results[0].score > results[1].score
 
 

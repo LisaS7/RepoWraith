@@ -24,3 +24,7 @@ class RetrievedChunk:
     lexical_score: float = 0.0
     file_score: float = 0.0
     test_penalized: bool = False
+
+    @property
+    def chunk(self) -> Chunk:
+        return self.embedded_chunk.chunk
