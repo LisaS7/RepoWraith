@@ -29,6 +29,18 @@ def test_tokenize_skips_empty_parts_from_leading_trailing_underscores():
     assert tokenize("_private_") == ["_private_", "private"]
 
 
+def test_tokenize_splits_camelcase():
+    assert tokenize("MyClass") == ["my", "class"]
+
+
+def test_tokenize_splits_camelcase_lowercase_start():
+    assert tokenize("retrieveChunks") == ["retrieve", "chunks"]
+
+
+def test_tokenize_splits_camelcase_multiple_humps():
+    assert tokenize("EmbeddedChunkStore") == ["embedded", "chunk", "store"]
+
+
 def test_tokenize_query_strips_stop_words():
     # "how", "the", "work" are stop words; "retrieval" is not
     result = tokenize_query("how does the retrieval work")

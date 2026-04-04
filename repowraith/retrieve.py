@@ -18,6 +18,7 @@ from repowraith.store import load_chunks
 
 
 def tokenize(text: str) -> list[str]:
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
     raw_tokens = re.findall(r"[a-z0-9_]+", text.lower())
     tokens = []
 
