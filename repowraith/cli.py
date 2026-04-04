@@ -29,7 +29,7 @@ def preview_text(text: str, max_lines: int = 5) -> str:
     return "\n".join(preview)
 
 
-def parse_args(args=None):
+def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="repowraith")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -69,7 +69,7 @@ def parse_args(args=None):
 # ═════════════════ COMMAND FUNCTIONS ══════════════════
 
 
-def cmd_survey(args):
+def cmd_survey(args: argparse.Namespace) -> None:
     files = survey_repository(Path(args.path))
 
     print(f"{len(files)} files discovered")
@@ -80,7 +80,7 @@ def cmd_survey(args):
             print(file.as_posix())
 
 
-def cmd_ingest(args):
+def cmd_ingest(args: argparse.Namespace) -> None:
     repo_path = Path(args.path).resolve()
 
     print("Surveying repository...")
@@ -129,7 +129,7 @@ def cmd_ingest(args):
     print("Ingestion complete")
 
 
-def cmd_ask(args):
+def cmd_ask(args: argparse.Namespace) -> None:
     repo_path = Path(args.path).resolve()
 
     if args.verbose:
@@ -167,7 +167,7 @@ def cmd_ask(args):
 # ══════════════════════════════════════════════════════
 
 
-def main():
+def main() -> None:
     args = parse_args()
     try:
         args.func(args)

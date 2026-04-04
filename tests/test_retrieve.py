@@ -17,6 +17,9 @@ from repowraith.retrieve import (
 from repowraith.store import get_connection, init_db, insert_chunks, load_chunks, upsert_repository
 
 
+# ═════════════════ tokenize ═════════════════
+
+
 def test_tokenize_lowercases_and_strips_non_alphanumeric():
     assert tokenize("Hello WORLD\tfriend") == ["hello", "world", "friend"]
 
@@ -50,6 +53,9 @@ def test_tokenize_query_strips_stop_words():
     assert "work" not in result
 
 
+# ═════════════════ cosine_similarity ═════════════════
+
+
 def test_cosine_similarity():
     assert cosine_similarity([1, 0], [1, 0]) == pytest.approx(1)
     assert cosine_similarity([1, 0], [0, 1]) == pytest.approx(0)
@@ -60,6 +66,9 @@ def test_cosine_similarity():
 def test_cosine_similarity_zero_vector_returns_zero():
     assert cosine_similarity([0, 0], [1, 0]) == 0.0
     assert cosine_similarity([1, 0], [0, 0]) == 0.0
+
+
+# ═════════════════ compute_document_frequencies ═════════════════
 
 
 def test_compute_document_frequencies_counts_each_term_once_per_document():
@@ -88,6 +97,9 @@ def test_compute_document_frequencies_counts_each_term_once_per_document():
 
     assert doc_freqs["sqlite"] == 2
     assert doc_freqs["retrieval"] == 1
+
+
+# ═════════════════ load_chunks ═════════════════
 
 
 def test_load_chunks(tmp_path):
@@ -126,6 +138,9 @@ def test_load_chunks_returns_empty_list_when_no_chunks_exist(tmp_path):
     chunks = load_chunks(tmp_path)
 
     assert chunks == []
+
+
+# ═════════════════ retrieve_chunks ═════════════════
 
 
 def test_retrieve_chunks_returns_best_match_first(tmp_path):
@@ -183,6 +198,9 @@ def test_retrieve_chunks_respects_k(tmp_path):
     results = retrieve_chunks("chunk", [1.0, 0.0], tmp_path, k=2)
 
     assert len(results) == 2
+
+
+# ═════════════════ bm25_score ═════════════════
 
 
 def test_bm25_scores_matching_text_higher():
