@@ -21,11 +21,10 @@ No cloud services. No telemetry. Just a quiet intelligence wandering the stacks 
 
 ## Current Status
 
-RepoWraith currently supports the indexing pipeline:
-survey → split → embed → store
+Both pipelines are fully implemented:
 
-Planned next step:
-retrieve → answer questions over code with a local LLM
+- **Indexing:** survey → split → embed → store
+- **Query:** retrieve → prompt → answer (via local LLM)
 
 ---
 
@@ -84,8 +83,9 @@ A[Repository] --> B[Survey]
 B --> C[Split]
 C --> D[Embed]
 D --> E[Store]
-E --> F[Future: Semantic Retrieval]
-F --> G[Future: Local LLM Answers]
+E --> F[Retrieve]
+F --> G[Prompt]
+G --> H[Local LLM Answer]
 ```
 
 1. **Survey**
@@ -120,15 +120,12 @@ Embeddings are stored as JSON-encoded vectors in SQLite.
 - Chunking pipeline
 - Ollama embeddings
 - SQLite storage
+- Hybrid semantic + BM25 retrieval
+- Prompt assembly
+- Local LLM question answering (`repowraith ask`)
 
 ### Planned
 
-- Semantic retrieval
-- Prompt assembly
-- Local LLM question answering
-
-- Additional CLI commands such as:
-- `repowraith ask`
 - `repowraith status`
 - `repowraith reindex`
 - `repowraith inspect`
