@@ -102,6 +102,9 @@ def cmd_ingest(args: argparse.Namespace) -> None:
     all_embedded = []
     changed = skipped = 0
 
+    surveyed_rel_paths = {f.relative_to(repo_path).as_posix() for f in files}
+    existing_by_file = {k: v for k, v in existing_by_file.items() if k in surveyed_rel_paths}
+
     for file in files:
         rel_path = file.relative_to(repo_path).as_posix()
         current_hash = hash_file(file)

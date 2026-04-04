@@ -132,6 +132,39 @@ def test_cmd_ask_verbose_prints_chunk_preview(tmp_path, capsys, monkeypatch):
     assert "def insert(): pass" in captured.out
 
 
+def test_ingest_excludes_deleted_file_chunks(tmp_path, monkeypatch):
+    create_test_repo(tmp_path)
+
+    deleted_file = "folder/file1.py"
+    surviving_file = "folder/file2.py"
+
+    fake_chunk = Chunk(file_path=tmp_path / surviving_file, start_line=1, end_line=5, text="x")
+    deleted_chunk = Chunk(file_path=tmp_path / deleted_file, start_line=1, end_line=5, text="deleted")
+
+    surviving_ec = EmbeddedChunk(chunk=fake_chunk, embedding=[0.1, 0.2], file_hash="abc")
+    deleted_ec = EmbeddedChunk(chunk=deleted_chunk, embedding=[0.3, 0.4], file_hash="old")
+
+    # Simulate DB that still has chunks for a deleted file
+    fake_existing = {
+        surviving_file: ("abc", [surviving_ec]),
+        deleted_file: ("old", [deleted_ec]),
+    }
+
+    stored = {}
+
+    monkeypatch.setattr("repowraith.cli.load_chunks_by_file", lambda *_: fake_existing)
+    monkeypatch.setattr("repowraith.cli.hash_file", lambda f: "abc")
+    monkeypatch.setattr("repowraith.cli.split_file", lambda f: [])
+    monkeypatch.setattr("repowraith.cli.embed_chunks", lambda chunks: [])
+    monkeypatch.setattr("repowraith.cli.index_repository", lambda repo_path, chunks: stored.update({"chunks": chunks}))
+
+    args = Namespace(path=tmp_path)
+    cmd_ingest(args)
+
+    stored_paths = {ec.chunk.file_path.relative_to(tmp_path).as_posix() for ec in stored["chunks"]}
+    assert deleted_file not in stored_paths
+
+
 def test_main_exits_with_code_1_on_repowraith_error(monkeypatch, capsys):
     def raise_error(args):
         raise OllamaConnectionError("no ollama running")
