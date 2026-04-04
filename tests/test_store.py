@@ -1,6 +1,8 @@
+import datetime
 import json
 import sqlite3
-import time
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -82,23 +84,28 @@ def test_upsert_repository_does_not_duplicate(tmp_path) -> None:
 
 
 def test_upsert_repository_updates_indexed_at(tmp_path) -> None:
+    t1 = datetime.datetime(2024, 1, 1, 12, 0, 0)
+    t2 = datetime.datetime(2024, 1, 1, 12, 0, 1)
+
     with get_connection(tmp_path) as conn:
         init_db(conn)
 
-        upsert_repository(conn, tmp_path)
+        with patch("repowraith.store.datetime.datetime") as mock_dt:
+            mock_dt.now.side_effect = [t1, t2]
 
-        cursor = conn.cursor()
-        cursor.execute("SELECT indexed_at FROM repositories")
-        first_indexed_at = cursor.fetchone()["indexed_at"]
+            upsert_repository(conn, tmp_path)
 
-        time.sleep(0.01)
+            cursor = conn.cursor()
+            cursor.execute("SELECT indexed_at FROM repositories")
+            first_indexed_at = cursor.fetchone()["indexed_at"]
 
-        upsert_repository(conn, tmp_path)
+            upsert_repository(conn, tmp_path)
 
-        cursor.execute("SELECT indexed_at FROM repositories")
-        second_indexed_at = cursor.fetchone()["indexed_at"]
+            cursor.execute("SELECT indexed_at FROM repositories")
+            second_indexed_at = cursor.fetchone()["indexed_at"]
 
-        assert second_indexed_at != first_indexed_at
+    assert first_indexed_at == t1.isoformat()
+    assert second_indexed_at == t2.isoformat()
 
 
 def test_get_repo_id_returns_existing_repo_id(tmp_path) -> None:
@@ -264,3 +271,44 @@ def test_index_repository_replaces_chunks_on_reingest(tmp_path) -> None:
 
     assert len(chunks) == 1
     assert chunks[0].chunk.text == "second ingest"
+
+
+# ═════════════════ load_chunks ═════════════════
+
+
+def test_load_chunks(tmp_path) -> None:
+    with get_connection(tmp_path) as conn:
+        init_db(conn)
+        repo_id = upsert_repository(conn, tmp_path)
+        insert_chunks(conn, repo_id, tmp_path, [
+            EmbeddedChunk(
+                chunk=Chunk(
+                    file_path=tmp_path / "repowraith/embed.py",
+                    start_line=10,
+                    end_line=25,
+                    text="def embed_text(text): ...",
+                ),
+                embedding=[0.1, 0.2, 0.3],
+            )
+        ])
+
+    chunks = load_chunks(tmp_path)
+
+    assert len(chunks) == 1
+
+    embedded_chunk = chunks[0]
+    assert embedded_chunk.chunk.file_path == Path("repowraith/embed.py")
+    assert embedded_chunk.chunk.start_line == 10
+    assert embedded_chunk.chunk.end_line == 25
+    assert embedded_chunk.chunk.text == "def embed_text(text): ..."
+    assert embedded_chunk.embedding == [0.1, 0.2, 0.3]
+
+
+def test_load_chunks_returns_empty_list_when_no_chunks_exist(tmp_path) -> None:
+    with get_connection(tmp_path) as conn:
+        init_db(conn)
+        upsert_repository(conn, tmp_path)
+
+    chunks = load_chunks(tmp_path)
+
+    assert chunks == []

@@ -66,7 +66,7 @@ def test_split_file_returns_empty_list_when_all_encodings_fail(tmp_path):
         OSError("permission denied"),
     ]
 
-    with patch("pathlib.Path.read_text", side_effect=side_effects):
+    with patch("repowraith.splitter.Path.read_text", side_effect=side_effects):
         chunks = split_file(file_path)
 
     assert chunks == []
