@@ -144,7 +144,7 @@ def retrieve_chunks(
     document_frequencies = compute_document_frequencies(tokenized_texts)
     average_doc_length = sum(len(t) for t in tokenized_texts) / total_docs
 
-    scored_chunks = []
+    raw_scores = []
     for embedded_chunk, tokens in zip(embedded_chunks, tokenized_texts):
         semantic_score = cosine_similarity(query_embedding, embedded_chunk.embedding)
         lexical_score = bm25_score(
@@ -155,9 +155,16 @@ def retrieve_chunks(
             average_doc_length=average_doc_length,
         )
         file_score = filename_score(query, str(embedded_chunk.chunk.file_path))
+        raw_scores.append((embedded_chunk, semantic_score, lexical_score, file_score))
+
+    max_bm25 = max((ls for _, _, ls, _ in raw_scores), default=1.0) or 1.0
+
+    scored_chunks = []
+    for embedded_chunk, semantic_score, lexical_score, file_score in raw_scores:
+        normalized_lexical = lexical_score / max_bm25
         score = (
             semantic_score
-            + LEXICAL_WEIGHT * lexical_score
+            + LEXICAL_WEIGHT * normalized_lexical
             + FILENAME_WEIGHT * file_score
         )
         # Test files tend to dominate lexical scoring because they repeat function/variable
@@ -172,7 +179,7 @@ def retrieve_chunks(
             embedded_chunk=embedded_chunk,
             score=score,
             semantic_score=semantic_score,
-            lexical_score=lexical_score,
+            lexical_score=normalized_lexical,
             file_score=file_score,
             test_penalized=test_penalized,
         )
