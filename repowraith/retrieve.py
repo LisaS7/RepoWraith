@@ -107,7 +107,12 @@ def filename_score(query: str, file_path: str) -> float:
     matches = sum(
         1
         for term in query_terms
-        if any(term == tok or (len(tok) >= 4 and tok in term) for tok in path_tokens)
+        if any(
+            term == tok
+            or (len(tok) >= 4 and tok in term)
+            or (len(term) >= 4 and term in tok)
+            for tok in path_tokens
+        )
     )
     return float(matches)
 

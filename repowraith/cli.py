@@ -8,8 +8,14 @@ from repowraith.errors import RepoWraithError
 from repowraith.llm import ask_llm
 from repowraith.prompt import build_prompt
 from repowraith.retrieve import retrieve
-from repowraith.splitter import split_repository
-from repowraith.store import index_repository
+from repowraith.splitter import hash_file, split_file
+from repowraith.store import (
+    get_connection,
+    get_repo_id,
+    index_repository,
+    init_db,
+    load_chunks_by_file,
+)
 from repowraith.survey import survey_repository
 
 
@@ -80,26 +86,46 @@ def cmd_ingest(args):
     print("Surveying repository...")
     files = survey_repository(repo_path)
     print(f"{len(files)} files discovered")
-
     print()
 
-    print("Chunking files...")
-    chunks = split_repository(files)
-    print(f"{len(chunks)} chunks created")
+    # Load existing index so unchanged files can be skipped
+    existing_by_file = {}
+    try:
+        with get_connection(repo_path) as conn:
+            init_db(conn)
+            repo_id = get_repo_id(conn, repo_path)
+            existing_by_file = load_chunks_by_file(conn, repo_id, repo_path)
+    except ValueError:
+        pass  # No existing index yet — full ingest
 
-    print()
+    print("Chunking and embedding files...")
+    all_embedded = []
+    changed = skipped = 0
 
-    print("Generating embeddings...")
-    embedded_chunks = embed_chunks(chunks)
-    print(f"{len(embedded_chunks)} chunks embedded")
+    for file in files:
+        rel_path = file.relative_to(repo_path).as_posix()
+        current_hash = hash_file(file)
+        stored = existing_by_file.get(rel_path)
+        if stored and stored[0] == current_hash:
+            all_embedded.extend(stored[1])
+            skipped += 1
+            continue
+        file_chunks = split_file(file)
+        if not file_chunks:
+            continue
+        embedded = embed_chunks(file_chunks)
+        for ec in embedded:
+            ec.file_hash = current_hash
+        all_embedded.extend(embedded)
+        changed += 1
 
+    print(f"{skipped} files unchanged (skipped), {changed} files re-embedded")
+    print(f"{len(all_embedded)} chunks total")
     print()
 
     print("Storing index...")
-    index_repository(repo_path, embedded_chunks)
-
+    index_repository(repo_path, all_embedded)
     print()
-
     print("Ingestion complete")
 
 

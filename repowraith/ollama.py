@@ -4,9 +4,9 @@ from repowraith.config import REQUEST_TIMEOUT_SECONDS
 from repowraith.errors import OllamaConnectionError, OllamaResponseError
 
 
-def post_to_ollama(url: str, body: dict, context: str) -> dict:
+def post_to_ollama(url: str, body: dict, context: str, timeout: int = REQUEST_TIMEOUT_SECONDS) -> dict:
     try:
-        response = requests.post(url, json=body, timeout=REQUEST_TIMEOUT_SECONDS)
+        response = requests.post(url, json=body, timeout=timeout)
         response.raise_for_status()
     except requests.Timeout as exc:
         raise OllamaConnectionError(

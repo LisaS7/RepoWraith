@@ -329,6 +329,11 @@ def test_filename_score_short_token_not_used_as_substring():
     assert filename_score("types", "src/a.py") == 0.0
 
 
+def test_filename_score_query_term_is_prefix_of_path_token():
+    # "split" (len 5 >= 4) is a substring of path token "splitter"
+    assert filename_score("split file function", "repowraith/splitter.py") > 0.0
+
+
 # ═════════════════ is_test_file ═════════════════
 
 

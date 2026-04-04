@@ -1,11 +1,15 @@
-# TODO:
-# add hashing later?
-
-
+import hashlib
 from pathlib import Path
 
 from repowraith.config import CHUNK_SIZE, OVERLAP
 from repowraith.models import Chunk
+
+
+def hash_file(path: Path) -> str:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError:
+        return ""
 
 
 def split_file(path: Path) -> list[Chunk]:

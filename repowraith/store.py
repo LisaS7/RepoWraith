@@ -8,6 +8,7 @@ from repowraith.schema import (
     CREATE_CHUNKS_REPO_INDEX,
     CREATE_CHUNKS_TABLE,
     CREATE_REPOSITORIES_TABLE,
+    MIGRATE_ADD_FILE_HASH,
 )
 
 
@@ -43,6 +44,11 @@ def init_db(conn: sqlite3.Connection) -> None:
     cursor.execute(CREATE_REPOSITORIES_TABLE)
     cursor.execute(CREATE_CHUNKS_TABLE)
     cursor.execute(CREATE_CHUNKS_REPO_INDEX)
+
+    try:
+        cursor.execute(MIGRATE_ADD_FILE_HASH)
+    except sqlite3.OperationalError:
+        pass  # column already exists
 
 
 def upsert_repository(conn: sqlite3.Connection, repo_path: Path) -> int:
@@ -105,12 +111,13 @@ def insert_chunks(
             chunk.end_line,
             chunk.text,
             embedding_json,
+            embedded_chunk.file_hash,
         )
         rows.append(row)
 
     cursor = conn.cursor()
     cursor.executemany(
-        "INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO chunks (repo_id, file_path, start_line, end_line, text, embedding, file_hash) VALUES (?, ?, ?, ?, ?, ?, ?)",
         rows,
     )
 
@@ -140,6 +147,42 @@ def load_chunks(repo_path: Path) -> list[EmbeddedChunk]:
         chunks.append(embedded_chunk)
 
     return chunks
+
+
+def load_chunks_by_file(
+    conn: sqlite3.Connection, repo_id: int, repo_path: Path
+) -> dict[str, tuple[str, list[EmbeddedChunk]]]:
+    """Return existing embedded chunks keyed by relative file path.
+
+    Returns {relative_path: (file_hash, [EmbeddedChunk])}.
+    Chunks have absolute file paths so they can be re-inserted unchanged.
+    """
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT file_path, start_line, end_line, text, embedding, file_hash FROM chunks WHERE repo_id = ?",
+        (repo_id,),
+    )
+    rows = cursor.fetchall()
+
+    result: dict[str, list[EmbeddedChunk]] = {}
+    hashes: dict[str, str] = {}
+    for row in rows:
+        rel_path = row["file_path"]
+        chunk = Chunk(
+            file_path=repo_path / rel_path,
+            start_line=row["start_line"],
+            end_line=row["end_line"],
+            text=row["text"],
+        )
+        ec = EmbeddedChunk(
+            chunk=chunk,
+            embedding=json.loads(row["embedding"]),
+            file_hash=row["file_hash"],
+        )
+        result.setdefault(rel_path, []).append(ec)
+        hashes[rel_path] = row["file_hash"]
+
+    return {rel_path: (hashes[rel_path], chunks) for rel_path, chunks in result.items()}
 
 
 def index_repository(repo_path: Path, embedded_chunks: list[EmbeddedChunk]) -> None:

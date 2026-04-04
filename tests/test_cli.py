@@ -49,8 +49,14 @@ def test_ingest(tmp_path, capsys, monkeypatch):
 
     args = Namespace(path=tmp_path)
 
+    fake_chunk = Chunk(file_path=tmp_path / "test_file.txt", start_line=1, end_line=10, text="x")
+    fake_embedded = [
+        EmbeddedChunk(chunk=fake_chunk, embedding=[0.1, 0.2]),
+        EmbeddedChunk(chunk=fake_chunk, embedding=[0.3, 0.4]),
+    ]
+
     def fake_embed_chunks(chunks):
-        return ["fake1", "fake2"]
+        return list(fake_embedded)
 
     stored = {}
 
@@ -66,13 +72,12 @@ def test_ingest(tmp_path, capsys, monkeypatch):
     captured = capsys.readouterr()
 
     assert "Surveying repository..." in captured.out
-    assert "Chunking files..." in captured.out
-    assert "Generating embeddings..." in captured.out
+    assert "Chunking and embedding files..." in captured.out
     assert "Storing index..." in captured.out
     assert "Ingestion complete" in captured.out
 
     assert stored["repo_path"] == tmp_path
-    assert stored["embedded_chunks"] == ["fake1", "fake2"]
+    assert len(stored["embedded_chunks"]) > 0
 
 
 # ═════════════════ PARSEARGS ══════════════════

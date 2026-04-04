@@ -15,8 +15,13 @@ CREATE TABLE IF NOT EXISTS chunks (
     end_line INTEGER NOT NULL,
     text TEXT NOT NULL,
     embedding TEXT NOT NULL,
+    file_hash TEXT NOT NULL DEFAULT '',
     FOREIGN KEY (repo_id) REFERENCES repositories(id)
 )
+"""
+
+MIGRATE_ADD_FILE_HASH = """
+ALTER TABLE chunks ADD COLUMN file_hash TEXT NOT NULL DEFAULT ''
 """
 
 CREATE_CHUNKS_REPO_INDEX = """

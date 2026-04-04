@@ -27,6 +27,7 @@ LLM_MODEL = "llama3"
 EMBED_MODEL = "embeddinggemma"
 
 REQUEST_TIMEOUT_SECONDS = 45
+GENERATE_TIMEOUT_SECONDS = 300
 
 # ═════════════════ RETRIEVAL ══════════════
 

@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from repowraith.config import OLLAMA_GENERATE_URL, REQUEST_TIMEOUT_SECONDS
+from repowraith.config import GENERATE_TIMEOUT_SECONDS, OLLAMA_GENERATE_URL
 from repowraith.errors import OllamaResponseError
 from repowraith.llm import ask_llm
 
@@ -24,7 +24,7 @@ def test_ask_llm_sends_expected_request(mock_post):
             "prompt": prompt,
             "stream": False,
         },
-        timeout=REQUEST_TIMEOUT_SECONDS,
+        timeout=GENERATE_TIMEOUT_SECONDS,
     )
 
 

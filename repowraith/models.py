@@ -14,6 +14,7 @@ class Chunk:
 class EmbeddedChunk:
     chunk: Chunk
     embedding: list[float]
+    file_hash: str = ""
 
 
 @dataclass
