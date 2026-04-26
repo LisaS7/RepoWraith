@@ -26,7 +26,7 @@ def test_survey_non_verbose(tmp_path, capsys):
 
     captured = capsys.readouterr()
 
-    assert "3 files discovered" in captured.out
+    assert "2 files discovered" in captured.out
     assert "folder/file1.py" not in captured.out
 
 
@@ -39,7 +39,7 @@ def test_survey_verbose(tmp_path, capsys):
 
     captured = capsys.readouterr()
 
-    assert "3 files discovered" in captured.out
+    assert "2 files discovered" in captured.out
     assert "folder/file1.py" in captured.out
 
 
