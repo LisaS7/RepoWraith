@@ -7,10 +7,15 @@ DEFAULT_IGNORE_DIRS = {
     ".pytest_cache",
     "node_modules",
     ".repowraith",
+    "target",
+    "build",
+    ".gradle",
+    "out",
+    ".idea",
 }
 
 DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt"}
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear"}
 
 # ═════════════════ CHUNKING ═══════════════
 
