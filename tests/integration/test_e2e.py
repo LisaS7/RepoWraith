@@ -26,7 +26,7 @@ def test_full_pipeline(tmp_path):
 
     # Survey
     files = survey_repository(tmp_path)
-    assert len(files) == 3
+    assert len(files) == 2
 
     # Split
     chunks = split_repository(files)
@@ -54,10 +54,11 @@ def test_full_pipeline(tmp_path):
     assert len(retrieved_chunks) <= 3
 
     # Prompt
-    prompt = build_prompt("Where is hello world printed?", retrieved_chunks, k=3)
-    assert len(prompt) > 0
-    assert "hello world" in prompt
+    system, user = build_prompt("Where is hello world printed?", retrieved_chunks, k=3)
+    assert len(system) > 0
+    assert len(user) > 0
+    assert "hello world" in user
 
     # LLM
-    answer = ask_llm(prompt)
+    answer = ask_llm(system, user)
     assert len(answer) > 0

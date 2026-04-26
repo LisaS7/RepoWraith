@@ -22,8 +22,9 @@ OVERLAP = 15
 OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_EMBED_URL = f"{OLLAMA_BASE_URL}/api/embed"
 OLLAMA_GENERATE_URL = f"{OLLAMA_BASE_URL}/api/generate"
+OLLAMA_CHAT_URL = f"{OLLAMA_BASE_URL}/api/chat"
 
-LLM_MODEL = "qwen"
+LLM_MODEL = "qwen2.5:7b"
 LLM_TEMPERATURE = 0.1
 LLM_MAX_TOKENS = 1024
 EMBED_MODEL = "embeddinggemma"

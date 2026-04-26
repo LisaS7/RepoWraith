@@ -110,7 +110,7 @@ def test_cmd_ask_prints_answer_on_success(tmp_path, capsys, monkeypatch):
     retrieved = [_make_retrieved_chunk("repowraith/store.py")]
 
     monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path: retrieved)
-    monkeypatch.setattr("repowraith.cli.ask_llm", lambda prompt: "It uses SQLite.")
+    monkeypatch.setattr("repowraith.cli.ask_llm", lambda system, prompt: "It uses SQLite.")
 
     args = Namespace(path=str(tmp_path), question="how is data stored", verbose=False)
     cmd_ask(args)
@@ -123,7 +123,7 @@ def test_cmd_ask_verbose_prints_chunk_preview(tmp_path, capsys, monkeypatch):
     retrieved = [_make_retrieved_chunk("repowraith/store.py", text="def insert(): pass")]
 
     monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path: retrieved)
-    monkeypatch.setattr("repowraith.cli.ask_llm", lambda prompt: "answer")
+    monkeypatch.setattr("repowraith.cli.ask_llm", lambda system, prompt: "answer")
 
     args = Namespace(path=str(tmp_path), question="how is data stored", verbose=True)
     cmd_ask(args)

@@ -59,16 +59,16 @@ def test_build_prompt_includes_question_and_context():
         ),
     ]
 
-    result = build_prompt(
+    _system, user = build_prompt(
         "Where is embedding implemented?",
         retrieved_chunks,
     )
 
-    assert "Where is embedding implemented?" in result
-    assert "[1] repowraith/embed.py:10-20" in result
-    assert "def embed_text(text):" in result
-    assert "[2] repowraith/cli.py:30-40" in result
-    assert "def main():" in result
+    assert "Where is embedding implemented?" in user
+    assert "[1] repowraith/embed.py:10-20" in user
+    assert "def embed_text(text):" in user
+    assert "[2] repowraith/cli.py:30-40" in user
+    assert "def main():" in user
 
 
 def test_build_prompt_only_includes_top_k_chunks():
@@ -78,19 +78,19 @@ def test_build_prompt_only_includes_top_k_chunks():
         make_retrieved_chunk("c.py", 11, 15, "chunk c"),
     ]
 
-    result = build_prompt(
+    _system, user = build_prompt(
         "Test question",
         retrieved_chunks,
         k=2,
     )
 
-    assert "[1] a.py:1-5" in result
-    assert "[2] b.py:6-10" in result
-    assert "chunk a" in result
-    assert "chunk b" in result
+    assert "[1] a.py:1-5" in user
+    assert "[2] b.py:6-10" in user
+    assert "chunk a" in user
+    assert "chunk b" in user
 
-    assert "c.py:11-15" not in result
-    assert "chunk c" not in result
+    assert "c.py:11-15" not in user
+    assert "chunk c" not in user
 
 
 def test_build_prompt_numbers_chunks_from_one():
@@ -99,21 +99,21 @@ def test_build_prompt_numbers_chunks_from_one():
         make_retrieved_chunk("b.py", 6, 10, "chunk b"),
     ]
 
-    result = build_prompt(
+    _system, user = build_prompt(
         "Test question",
         retrieved_chunks,
     )
 
-    assert "[1] a.py:1-5" in result
-    assert "[2] b.py:6-10" in result
-    assert "[0]" not in result
+    assert "[1] a.py:1-5" in user
+    assert "[2] b.py:6-10" in user
+    assert "[0]" not in user
 
 
 def test_build_prompt_with_no_chunks():
-    result = build_prompt(
+    _system, user = build_prompt(
         "Where is embedding implemented?",
         [],
     )
 
-    assert "Where is embedding implemented?" in result
-    assert "[1]" not in result
+    assert "Where is embedding implemented?" in user
+    assert "[1]" not in user
