@@ -36,7 +36,8 @@ Requirements:
 
 - Python 3.10+
 - [Ollama](https://ollama.com/) running locally
-- embeddinggemma model installed
+- `embeddinggemma` model (for embeddings)
+- `qwen` model (for question answering)
 
 Clone the repository and install in editable mode:
 
@@ -46,28 +47,43 @@ cd repowraith
 pip install -e .
 ```
 
-Ensure Ollama is running:
+Pull the required Ollama models:
 
 ```bash
-ollama run embeddinggemma
+ollama pull embeddinggemma
+ollama pull qwen
 ```
 
 ---
 
 ## Usage
 
-### Survey a repository
+### Survey a repository (dry run — no indexing)
 
-`bash repowraith survey . `
+```bash
+repowraith survey <path>
+repowraith survey <path> --verbose   # list discovered files
+```
 
-### Survey a repository with file listing
+### Index a repository
 
-`bash repowraith survey . --verbose `
+```bash
+repowraith ingest <path>
+```
 
-### Ingest a repository
+Runs the full indexing pipeline. Subsequent runs are incremental — only changed files are re-embedded.
 
-`bash repowraith ingest . `
-This runs the full indexing pipeline
+### Ask a question
+
+```bash
+repowraith ask <path> "<question>"
+```
+
+Example:
+
+```bash
+repowraith ask . "How does the BM25 scoring work?"
+```
 
 ---
 
@@ -104,8 +120,11 @@ G --> H[Local LLM Answer]
 
 ## Local Storage
 
-RepoWraith stores its index locally inside the target repository:
-`text &lt;repo_root&gt;/.repowraith/index.db `
+RepoWraith stores its index inside the target repository:
+
+```
+<repo_root>/.repowraith/index.db
+```
 
 Embeddings are stored as JSON-encoded vectors in SQLite.
 
