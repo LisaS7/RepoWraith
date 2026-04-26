@@ -3,6 +3,7 @@
 DEFAULT_IGNORE_DIRS = {
     ".git",
     ".venv",
+    "venv",
     ".claude",
     "__pycache__",
     ".pytest_cache",
@@ -16,7 +17,7 @@ DEFAULT_IGNORE_DIRS = {
 }
 
 DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear", ".xlsx", ".ttf", ".otf", ".sqlite", ".db"}
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear", ".xlsx", ".ttf", ".otf", ".sqlite", ".db", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg"}
 DEFAULT_IGNORE_FILENAMES = {"gradlew", "gradlew.bat"}
 
 # ═════════════════ CHUNKING ═══════════════
