@@ -101,12 +101,14 @@ def cmd_ingest(args: argparse.Namespace) -> None:
     print("Chunking and embedding files...")
     all_embedded = []
     changed = skipped = 0
+    total = len(files)
 
     surveyed_rel_paths = {f.relative_to(repo_path).as_posix() for f in files}
     existing_by_file = {k: v for k, v in existing_by_file.items() if k in surveyed_rel_paths}
 
-    for file in files:
+    for i, file in enumerate(files, start=1):
         rel_path = file.relative_to(repo_path).as_posix()
+        print(f"  [{i}/{total}] {rel_path}", flush=True)
         current_hash = hash_file(file)
         stored = existing_by_file.get(rel_path)
         if stored and stored[0] == current_hash:
@@ -158,10 +160,10 @@ def cmd_ask(args: argparse.Namespace) -> None:
             print("-" * 60)
 
     print("Building prompt...")
-    prompt = build_prompt(args.question, retrieved_chunks)
+    system, prompt = build_prompt(args.question, retrieved_chunks)
 
     print("Querying LLM...")
-    answer = ask_llm(prompt)
+    answer = ask_llm(system, prompt)
 
     print()
     print(answer)
