@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from repowraith.config import GENERATE_TIMEOUT_SECONDS, OLLAMA_GENERATE_URL
+from repowraith.config import GENERATE_TIMEOUT_SECONDS, LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, OLLAMA_GENERATE_URL
 from repowraith.errors import OllamaResponseError
 from repowraith.llm import ask_llm
 
@@ -20,9 +20,10 @@ def test_ask_llm_sends_expected_request(mock_post):
     mock_post.assert_called_once_with(
         OLLAMA_GENERATE_URL,
         json={
-            "model": "llama3",
+            "model": LLM_MODEL,
             "prompt": prompt,
             "stream": False,
+            "options": {"temperature": LLM_TEMPERATURE, "num_predict": LLM_MAX_TOKENS},
         },
         timeout=GENERATE_TIMEOUT_SECONDS,
     )

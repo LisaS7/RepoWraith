@@ -114,7 +114,7 @@ def filename_score(query: str, file_path: str) -> float:
             for tok in path_tokens
         )
     )
-    return float(matches)
+    return matches / max(1, len(query_terms))
 
 
 def is_test_file(file_path: str) -> bool:

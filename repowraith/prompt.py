@@ -9,9 +9,8 @@ _TEMPLATE = (Path(__file__).parent / "prompt_template.txt").read_text(encoding="
 
 def format_chunk(retrieved_chunk: RetrievedChunk, index: int) -> str:
     chunk = retrieved_chunk.embedded_chunk.chunk
-    chunky_string = (
-        f"[{index}] {chunk.file_path}:{chunk.start_line}-{chunk.end_line}\n{chunk.text}"
-    )
+    header = f"--- [{index}] {chunk.file_path}:{chunk.start_line}-{chunk.end_line} ---"
+    chunky_string = f"{header}\n{chunk.text}"
     return chunky_string
 
 

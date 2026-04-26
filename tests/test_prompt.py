@@ -38,7 +38,8 @@ def test_format_chunk():
     result = format_chunk(retrieved_chunk, 1)
 
     assert result == (
-        "[1] repowraith/embed.py:10-20\n" "def embed_text(text):\n    return [0.1, 0.2]"
+        "--- [1] repowraith/embed.py:10-20 ---\n"
+        "def embed_text(text):\n    return [0.1, 0.2]"
     )
 
 
