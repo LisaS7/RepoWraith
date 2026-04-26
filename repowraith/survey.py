@@ -5,6 +5,7 @@ from repowraith.config import (
     DEFAULT_IGNORE_DIR_SUFFIXES,
     DEFAULT_IGNORE_DIRS,
     DEFAULT_IGNORE_EXTENSIONS,
+    DEFAULT_IGNORE_FILENAMES,
 )
 
 
@@ -13,13 +14,14 @@ def survey_repository(
     ignore_dirs: Iterable[str] = DEFAULT_IGNORE_DIRS,
     ignore_dir_suffixes: Iterable[str] = DEFAULT_IGNORE_DIR_SUFFIXES,
     ignore_extensions: Iterable[str] = DEFAULT_IGNORE_EXTENSIONS,
+    ignore_filenames: Iterable[str] = DEFAULT_IGNORE_FILENAMES,
 ) -> list[Path]:
     """
     Walk a repository and return an ordered list of files.
 
     - Returns absolute file paths
     - Ignores junk directories
-    - Ignores junk file extensions
+    - Ignores junk file extensions and filenames
     """
 
     root = Path(repo_root).resolve()
@@ -31,12 +33,13 @@ def survey_repository(
     ignore_dirs = set(ignore_dirs)
     ignore_dir_suffixes = set(ignore_dir_suffixes)
     ignore_extensions = set(ignore_extensions)
+    ignore_filenames = set(ignore_filenames)
     found = []
 
     for path in root.rglob("*"):
         if not path.is_file():
             continue
-        if path.suffix in ignore_extensions or path.name in ignore_extensions:
+        if path.suffix in ignore_extensions or path.name in ignore_extensions or path.name in ignore_filenames:
             continue
 
         # break the path into parts and checks if any of them are in the ignore lists
