@@ -1,4 +1,4 @@
-from repowraith.config import EMBED_BATCH_SIZE, EMBED_MODEL, OLLAMA_EMBED_URL
+from repowraith.config import EMBED_BATCH_SIZE, EMBED_MODEL, EMBED_TIMEOUT_SECONDS, OLLAMA_EMBED_URL
 from repowraith.errors import OllamaResponseError
 from repowraith.models import Chunk, EmbeddedChunk
 from repowraith.ollama import post_to_ollama
@@ -6,7 +6,7 @@ from repowraith.ollama import post_to_ollama
 
 def _embed_batch(texts: list[str], model: str = EMBED_MODEL) -> list[list[float]]:
     body = {"model": model, "input": texts}
-    response_json = post_to_ollama(OLLAMA_EMBED_URL, body, context="embed")
+    response_json = post_to_ollama(OLLAMA_EMBED_URL, body, context="embed", timeout=EMBED_TIMEOUT_SECONDS)
 
     embeddings = response_json.get("embeddings")
 
