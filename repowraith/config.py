@@ -15,7 +15,7 @@ DEFAULT_IGNORE_DIRS = {
 }
 
 DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear"}
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear", ".xlsx"}
 
 # ═════════════════ CHUNKING ═══════════════
 
