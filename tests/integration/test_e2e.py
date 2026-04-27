@@ -26,7 +26,7 @@ def test_full_pipeline(tmp_path):
 
     # Survey
     files = survey_repository(tmp_path)
-    assert len(files) == 2
+    assert len(files) == 3
 
     # Split
     chunks = split_repository(files)

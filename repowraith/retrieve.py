@@ -25,9 +25,14 @@ def tokenize(text: str) -> list[str]:
     for token in raw_tokens:
         tokens.append(token)
 
+        underscore_parts = [part for part in token.split("_") if part]
         if "_" in token:
-            parts = [part for part in token.split("_") if part]
-            tokens.extend(parts)
+            tokens.extend(underscore_parts)
+
+        for part in underscore_parts:
+            alphanum_parts = re.findall(r"[a-z]+|[0-9]+", part)
+            if len(alphanum_parts) > 1:
+                tokens.extend(alphanum_parts)
 
     return tokens
 

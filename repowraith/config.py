@@ -17,7 +17,7 @@ DEFAULT_IGNORE_DIRS = {
 }
 
 DEFAULT_IGNORE_DIR_SUFFIXES = {".egg-info"}
-DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".md", ".txt", ".class", ".jar", ".war", ".ear", ".xlsx", ".ttf", ".otf", ".sqlite", ".db", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg"}
+DEFAULT_IGNORE_EXTENSIONS = {".pyc", ".pyo", ".log", ".gitignore", ".class", ".jar", ".war", ".ear", ".xlsx", ".ttf", ".otf", ".sqlite", ".db", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg"}
 DEFAULT_IGNORE_FILENAMES = {"gradlew", "gradlew.bat"}
 
 # ═════════════════ CHUNKING ═══════════════
@@ -47,7 +47,7 @@ GENERATE_TIMEOUT_SECONDS = 300
 DEFAULT_TOP_K = 8
 
 LEXICAL_WEIGHT = 0.5
-FILENAME_WEIGHT = 1.0
+FILENAME_WEIGHT = 2.0
 TEST_FILE_WEIGHT = 0.5
 BM25_K1 = 1.5
 BM25_B = 0.75

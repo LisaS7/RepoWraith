@@ -16,9 +16,7 @@ def test_survey_repository_ignores_paths(tmp_path: Path) -> None:
     # Expected files are present
     assert tmp_path / "folder/file1.py" in files
     assert tmp_path / "folder/file2.html" in files
-
-    # Ignored extension files are NOT present
-    assert tmp_path / "README.md" not in files
+    assert tmp_path / "README.md" in files
 
     # Ignored dir contents are NOT present
     assert not any("/.venv/" in s for s in stringy_paths)
