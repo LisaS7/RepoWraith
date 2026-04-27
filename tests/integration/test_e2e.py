@@ -1,12 +1,12 @@
 import pytest
 
-from repowraith.embed import embed_chunks
-from repowraith.llm import ask_llm
-from repowraith.prompt import build_prompt
-from repowraith.retrieve import retrieve
-from repowraith.splitter import split_repository
-from repowraith.store import get_connection, index_repository
-from repowraith.survey import survey_repository
+from repollama.embed import embed_chunks
+from repollama.llm import ask_llm
+from repollama.prompt import build_prompt
+from repollama.retrieve import retrieve
+from repollama.splitter import split_repository
+from repollama.store import get_connection, index_repository
+from repollama.survey import survey_repository
 
 
 @pytest.mark.integration

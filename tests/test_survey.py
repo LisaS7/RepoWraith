@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from repowraith.survey import survey_repository
+from repollama.survey import survey_repository
 from tests.helpers import create_test_repo
 
 

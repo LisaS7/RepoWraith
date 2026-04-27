@@ -8,7 +8,7 @@ DEFAULT_IGNORE_DIRS = {
     "__pycache__",
     ".pytest_cache",
     "node_modules",
-    ".repowraith",
+    ".repollama",
     "target",
     "build",
     ".gradle",

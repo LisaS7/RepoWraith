@@ -1,6 +1,6 @@
-# RepoWraith Architecture Overview
+# RepoLlama Architecture Overview
 
-This diagram illustrates the high-level architecture of RepoWraith,
+This diagram illustrates the high-level architecture of RepoLlama,
 showing the indexing pipeline used to build the repository index
 and the query pipeline used to answer developer questions.
 
@@ -10,7 +10,7 @@ flowchart LR
 
     dev[Developer]
 
-    subgraph RepoWraith
+    subgraph RepoLlama
         cli[CLI Interface]
 
         subgraph Indexing Pipeline

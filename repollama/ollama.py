@@ -2,8 +2,8 @@ from typing import Any
 
 import requests
 
-from repowraith.config import REQUEST_TIMEOUT_SECONDS
-from repowraith.errors import OllamaConnectionError, OllamaResponseError
+from repollama.config import REQUEST_TIMEOUT_SECONDS
+from repollama.errors import OllamaConnectionError, OllamaResponseError
 
 
 def post_to_ollama(url: str, body: dict[str, Any], context: str, timeout: int = REQUEST_TIMEOUT_SECONDS) -> dict[str, Any]:

@@ -3,11 +3,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from repowraith.errors import OllamaConnectionError, OllamaResponseError
-from repowraith.ollama import post_to_ollama
+from repollama.errors import OllamaConnectionError, OllamaResponseError
+from repollama.ollama import post_to_ollama
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_post_to_ollama_returns_parsed_json_on_success(mock_post) -> None:
     mock_response = Mock()
     mock_response.raise_for_status.return_value = None
@@ -19,7 +19,7 @@ def test_post_to_ollama_returns_parsed_json_on_success(mock_post) -> None:
     assert result == {"embeddings": [[0.1, 0.2]]}
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_post_to_ollama_raises_connection_error_on_timeout(mock_post) -> None:
     mock_post.side_effect = requests.Timeout()
 
@@ -27,7 +27,7 @@ def test_post_to_ollama_raises_connection_error_on_timeout(mock_post) -> None:
         post_to_ollama("http://localhost:11434/api/embed", {}, context="embed")
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_post_to_ollama_raises_connection_error_on_connection_error(mock_post) -> None:
     mock_post.side_effect = requests.ConnectionError()
 
@@ -35,7 +35,7 @@ def test_post_to_ollama_raises_connection_error_on_connection_error(mock_post) -
         post_to_ollama("http://localhost:11434/api/embed", {}, context="embed")
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_post_to_ollama_raises_connection_error_on_request_exception(mock_post) -> None:
     mock_post.side_effect = requests.RequestException("upstream error")
 
@@ -43,7 +43,7 @@ def test_post_to_ollama_raises_connection_error_on_request_exception(mock_post) 
         post_to_ollama("http://localhost:11434/api/embed", {}, context="embed")
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_post_to_ollama_raises_response_error_on_invalid_json(mock_post) -> None:
     mock_response = Mock()
     mock_response.raise_for_status.return_value = None

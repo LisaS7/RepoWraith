@@ -1,12 +1,10 @@
-# RepoWraith
+# RepoLlama
 
-_A spectral archivist for your codebase._
+_A local archivist for your codebase._
 
-RepoWraith haunts your repository, studying its contents and cataloguing its knowledge.
+RepoLlama indexes a repository, embeds its contents, and lets you ask questions about the code using semantic search and local language models.
 
-It indexes source files, embeds their meaning, and allows you to ask questions about the code using semantic search and local language models.
-
-No cloud services. No telemetry. Just a quiet intelligence wandering the stacks of your project.
+No cloud services. No telemetry. Everything runs on your machine.
 
 ---
 
@@ -15,7 +13,7 @@ No cloud services. No telemetry. Just a quiet intelligence wandering the stacks 
 - 📚 Index a repository and build a searchable knowledge archive
 - 🔎 Semantic search across source code
 - 🧠 Question answering powered by local LLMs via Ollama
-- 🕯️ Fully local. Your code never leaves your machine. No external APIs required.
+- 🦙 Fully local. Your code never leaves your machine. No external APIs required.
 
 ---
 
@@ -30,7 +28,7 @@ Both pipelines are fully implemented:
 
 ## Installation
 
-RepoWraith runs entirely locally.
+RepoLlama runs entirely locally.
 
 Requirements:
 
@@ -42,8 +40,8 @@ Requirements:
 Clone the repository and install in editable mode:
 
 ```bash
-git clone https://github.com/LisaS7/repowraith
-cd repowraith
+git clone https://github.com/LisaS7/RepoLlama
+cd RepoLlama
 pip install -e .
 ```
 
@@ -61,14 +59,14 @@ ollama pull qwen
 ### Survey a repository (dry run — no indexing)
 
 ```bash
-repowraith survey <path>
-repowraith survey <path> --verbose   # list discovered files
+repollama survey <path>
+repollama survey <path> --verbose   # list discovered files
 ```
 
 ### Index a repository
 
 ```bash
-repowraith ingest <path>
+repollama ingest <path>
 ```
 
 Runs the full indexing pipeline. Subsequent runs are incremental — only changed files are re-embedded.
@@ -76,20 +74,20 @@ Runs the full indexing pipeline. Subsequent runs are incremental — only change
 ### Ask a question
 
 ```bash
-repowraith ask <path> "<question>"
+repollama ask <path> "<question>"
 ```
 
 Example:
 
 ```bash
-repowraith ask . "How does the BM25 scoring work?"
+repollama ask . "How does the BM25 scoring work?"
 ```
 
 ---
 
 ## How It Works
 
-RepoWraith builds a local semantic index of a repository.
+RepoLlama builds a local semantic index of a repository.
 
 ### Pipeline
 
@@ -120,10 +118,10 @@ G --> H[Local LLM Answer]
 
 ## Local Storage
 
-RepoWraith stores its index inside the target repository:
+RepoLlama stores its index inside the target repository:
 
 ```
-<repo_root>/.repowraith/index.db
+<repo_root>/.repollama/index.db
 ```
 
 Embeddings are stored as JSON-encoded vectors in SQLite.
@@ -141,10 +139,10 @@ Embeddings are stored as JSON-encoded vectors in SQLite.
 - SQLite storage
 - Hybrid semantic + BM25 retrieval
 - Prompt assembly
-- Local LLM question answering (`repowraith ask`)
+- Local LLM question answering (`repollama ask`)
 
 ### Planned
 
-- `repowraith status`
-- `repowraith reindex`
-- `repowraith inspect`
+- `repollama status`
+- `repollama reindex`
+- `repollama inspect`

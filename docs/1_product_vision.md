@@ -1,7 +1,7 @@
-# Product Vision: RepoWraith
+# Product Vision: RepoLlama
 
 ## Overview
-RepoWraith is a local-first developer tool that acts as a spectral archivist for your codebase. It enables developers to query and understand unfamiliar repositories quickly, without relying on external services or uploading sensitive code.
+RepoLlama is a local-first developer tool that acts as a local archivist for your codebase. It enables developers to query and understand unfamiliar repositories quickly, without relying on external services or uploading sensitive code.
 
 
 ## Problem Statement
@@ -16,7 +16,7 @@ Common challenges include:
 - onboarding new developers onto existing systems
 
 ## Solution
-RepoWraith builds a local index of a repository and allows users to ask natural language questions about the code.
+RepoLlama builds a local index of a repository and allows users to ask natural language questions about the code.
 
 It works by:
 
@@ -41,7 +41,7 @@ It works by:
 - Privacy-conscious teams working with sensitive code
 
 ## Value Proposition
-RepoWraith provides fast, private, and accurate code understanding by combining modern LLM capabilities with traditional information retrieval techniques.
+RepoLlama provides fast, private, and accurate code understanding by combining modern LLM capabilities with traditional information retrieval techniques.
 
 ## Future Vision
 - Structure-aware chunking (AST-based)

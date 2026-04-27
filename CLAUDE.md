@@ -18,26 +18,26 @@ pytest tests/test_retrieve.py
 pytest tests/test_retrieve.py::test_function_name
 
 # Run the CLI
-repowraith survey <path>
-repowraith ingest <path>
-repowraith ask <path> "<question>"
+repollama survey <path>
+repollama ingest <path>
+repollama ask <path> "<question>"
 ```
 
 ## Architecture
 
-RepoWraith indexes local codebases and answers questions about them using local embeddings (Ollama) and a local LLM — no cloud services.
+RepoLlama indexes local codebases and answers questions about them using local embeddings (Ollama) and a local LLM — no cloud services.
 
 ### Two pipelines
 
-**Indexing** (`repowraith ingest <path>`):
+**Indexing** (`repollama ingest <path>`):
 `survey.py` → `splitter.py` → `embed.py` → `store.py`
 
 1. **Survey** — discover files, skip non-code dirs/extensions
 2. **Split** — break files into overlapping line chunks (150 lines, 20-line overlap)
 3. **Embed** — call Ollama embedding API (`embeddinggemma` model)
-4. **Store** — persist chunks + embeddings to SQLite at `<repo>/.repowraith/index.db`
+4. **Store** — persist chunks + embeddings to SQLite at `<repo>/.repollama/index.db`
 
-**Query** (`repowraith ask <path> "<question>"`):
+**Query** (`repollama ask <path> "<question>"`):
 `retrieve.py` → `prompt.py` → `llm.py`
 
 1. **Retrieve** — embed the question, then score stored chunks using hybrid retrieval: cosine similarity + BM25 lexical scoring (50/50 weight by default), return top-K=5
@@ -51,7 +51,7 @@ RepoWraith indexes local codebases and answers questions about them using local 
 | `cli.py` | Entry point, argument parsing, `cmd_survey/ingest/ask` |
 | `config.py` | All tunable constants (chunk size, model names, Ollama URL, BM25 params) |
 | `models.py` | Data classes: `Chunk`, `EmbeddedChunk`, `RetrievedChunk` |
-| `errors.py` | Exception hierarchy: `RepoWraithError` → `OllamaError` → `OllamaConnectionError`/`OllamaResponseError` |
+| `errors.py` | Exception hierarchy: `RepoLlamaError` → `OllamaError` → `OllamaConnectionError`/`OllamaResponseError` |
 | `schema.py` | SQLite table DDL (`repositories`, `chunks`) |
 | `store.py` | All DB reads/writes |
 | `retrieve.py` | Hybrid retrieval logic (semantic + BM25 scoring) |

@@ -1,8 +1,8 @@
-# RepoWraith — System Context
+# RepoLlama — System Context
 
-This diagram shows the external actors and systems that interact with RepoWraith.
+This diagram shows the external actors and systems that interact with RepoLlama.
 
-RepoWraith operates as a local tool that reads source code from a repository and uses a local language model via Ollama to generate embeddings and answers to developer queries.
+RepoLlama operates as a local tool that reads source code from a repository and uses a local language model via Ollama to generate embeddings and answers to developer queries.
 
 ```mermaid
 flowchart LR
@@ -10,10 +10,10 @@ flowchart LR
     developer[Developer]
     repo[(Local Repository)]
     ollama[Ollama LLM]
-    repowraith[[RepoWraith]]
+    repollama[[RepoLlama]]
 
-    developer -->|CLI commands| repowraith
-    repowraith -->|Reads files| repo
-    repowraith -->|Embeddings / responses| ollama
+    developer -->|CLI commands| repollama
+    repollama -->|Reads files| repo
+    repollama -->|Embeddings / responses| ollama
 
 ```

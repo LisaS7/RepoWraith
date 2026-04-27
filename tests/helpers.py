@@ -19,7 +19,7 @@ def create_test_repo(tmp_path: Path) -> None:
     (venv / "pyvenv.cfg").write_text("Hello!", encoding="utf-8")
 
     # Ignored suffix directory (*.egg-info) with a file inside it
-    egg = tmp_path / "repowraith.egg-info"
+    egg = tmp_path / "repollama.egg-info"
     egg.mkdir()
     (egg / "PKG-INFO").write_text("Hello!", encoding="utf-8")
 

@@ -1,8 +1,8 @@
 import logging
 
-from repowraith.config import GENERATE_TIMEOUT_SECONDS, LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, OLLAMA_CHAT_URL
-from repowraith.errors import OllamaResponseError
-from repowraith.ollama import post_to_ollama
+from repollama.config import GENERATE_TIMEOUT_SECONDS, LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, OLLAMA_CHAT_URL
+from repollama.errors import OllamaResponseError
+from repollama.ollama import post_to_ollama
 
 logger = logging.getLogger(__name__)
 

@@ -38,7 +38,7 @@
 
 ## Strategic Interpretation
 
-The analysis suggests RepoWraith should prioritise:
+The analysis suggests RepoLlama should prioritise:
 
 - Maintaining a lightweight, local-first architecture
 - Improving retrieval accuracy through smarter chunking

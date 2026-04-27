@@ -1,10 +1,10 @@
 import logging
 import re
 
-from repowraith.config import GENERATE_TIMEOUT_SECONDS, OLLAMA_CHAT_URL, RERANK_MODEL
-from repowraith.errors import OllamaResponseError
-from repowraith.models import RetrievedChunk
-from repowraith.ollama import post_to_ollama
+from repollama.config import GENERATE_TIMEOUT_SECONDS, OLLAMA_CHAT_URL, RERANK_MODEL
+from repollama.errors import OllamaResponseError
+from repollama.models import RetrievedChunk
+from repollama.ollama import post_to_ollama
 
 logger = logging.getLogger(__name__)
 

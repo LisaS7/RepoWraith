@@ -1,7 +1,7 @@
 [project]
-name = "repowraith"
+name = "repollama"
 version = "0.1.0"
-description = "A spectral archivist for your codebase. Index repositories and summon answers using semantic search and local LLMs."
+description = "A local archivist for your codebase. Index repositories and answer questions using semantic search and local LLMs."
 readme = "README.md"
 requires-python = ">=3.10"
 
@@ -13,7 +13,7 @@ dependencies = ["requests"]
 dev = ["pytest"]
 
 [project.scripts]
-repowraith = "repowraith.cli:main"
+repollama = "repollama.cli:main"
 
 [tool.pytest.ini_options]
 markers = [

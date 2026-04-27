@@ -3,22 +3,22 @@ import logging
 import sys
 from pathlib import Path
 
-from repowraith.config import DEFAULT_TOP_K, RERANK_CANDIDATES
-from repowraith.embed import embed_chunks
-from repowraith.errors import RepoWraithError
-from repowraith.llm import ask_llm
-from repowraith.prompt import build_prompt
-from repowraith.rerank import score_chunk
-from repowraith.retrieve import retrieve
-from repowraith.splitter import hash_file, split_file
-from repowraith.store import (
+from repollama.config import DEFAULT_TOP_K, RERANK_CANDIDATES
+from repollama.embed import embed_chunks
+from repollama.errors import RepoLlamaError
+from repollama.llm import ask_llm
+from repollama.prompt import build_prompt
+from repollama.rerank import score_chunk
+from repollama.retrieve import retrieve
+from repollama.splitter import hash_file, split_file
+from repollama.store import (
     get_connection,
     get_repo_id,
     index_repository,
     init_db,
     load_chunks_by_file,
 )
-from repowraith.survey import survey_repository
+from repollama.survey import survey_repository
 
 
 def preview_text(text: str, max_lines: int = 5) -> str:
@@ -32,7 +32,7 @@ def preview_text(text: str, max_lines: int = 5) -> str:
 
 
 def parse_args(args: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(prog="repowraith")
+    parser = argparse.ArgumentParser(prog="repollama")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     survey_parser = subparsers.add_parser(
@@ -44,7 +44,7 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     )
 
     ingest_parser = subparsers.add_parser(
-        "ingest", help="Index a repository so it can be queried using RepoWraith"
+        "ingest", help="Index a repository so it can be queried using RepoLlama"
     )
     ingest_parser.add_argument("path", help="Path to the repository root")
 
@@ -149,7 +149,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
     if not retrieved_chunks:
         print()
         print("No index found for this repository.")
-        print(f"Run `repowraith ingest {repo_path}` first, then try again.")
+        print(f"Run `repollama ingest {repo_path}` first, then try again.")
         return
 
     print(f"Reranking {len(retrieved_chunks)} candidates...")
@@ -194,7 +194,7 @@ def main() -> None:
     args = parse_args()
     try:
         args.func(args)
-    except RepoWraithError as exc:
+    except RepoLlamaError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1)
 

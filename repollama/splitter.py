@@ -1,8 +1,8 @@
 import hashlib
 from pathlib import Path
 
-from repowraith.config import CHUNK_SIZE, OVERLAP
-from repowraith.models import Chunk
+from repollama.config import CHUNK_SIZE, OVERLAP
+from repollama.models import Chunk
 
 
 def hash_file(path: Path) -> str:

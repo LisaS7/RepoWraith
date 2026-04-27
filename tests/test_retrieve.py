@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from repowraith.models import Chunk, EmbeddedChunk
-from repowraith.retrieve import (
+from repollama.models import Chunk, EmbeddedChunk
+from repollama.retrieve import (
     bm25_score,
     compute_document_frequencies,
     cosine_similarity,
@@ -14,7 +14,7 @@ from repowraith.retrieve import (
     tokenize,
     tokenize_query,
 )
-from repowraith.store import get_connection, init_db, insert_chunks, upsert_repository
+from repollama.store import get_connection, init_db, insert_chunks, upsert_repository
 
 
 # ═════════════════ tokenize ═════════════════
@@ -237,16 +237,16 @@ def test_bm25_score_is_zero_when_query_terms_are_absent():
 
 
 def test_filename_score_exact_term_match():
-    assert filename_score("retrieve chunks", "repowraith/retrieve.py") > 0.0
+    assert filename_score("retrieve chunks", "repollama/retrieve.py") > 0.0
 
 
 def test_filename_score_no_match():
-    assert filename_score("banana lamp", "repowraith/retrieve.py") == 0.0
+    assert filename_score("banana lamp", "repollama/retrieve.py") == 0.0
 
 
 def test_filename_score_substring_match_long_token():
     # "config" (len 6 >= 4) is a substring of query term "configs"
-    assert filename_score("configs", "repowraith/config.py") > 0.0
+    assert filename_score("configs", "repollama/config.py") > 0.0
 
 
 def test_filename_score_short_token_not_used_as_substring():
@@ -257,7 +257,7 @@ def test_filename_score_short_token_not_used_as_substring():
 
 def test_filename_score_query_term_is_prefix_of_path_token():
     # "split" (len 5 >= 4) is a substring of path token "splitter"
-    assert filename_score("split file function", "repowraith/splitter.py") > 0.0
+    assert filename_score("split file function", "repollama/splitter.py") > 0.0
 
 
 # ═════════════════ is_test_file ═════════════════
@@ -276,7 +276,7 @@ def test_is_test_file_test_suffix():
 
 
 def test_is_test_file_normal_file():
-    assert is_test_file("repowraith/retrieve.py") is False
+    assert is_test_file("repollama/retrieve.py") is False
 
 
 # ═════════════════ query_is_about_tests ═════════════════

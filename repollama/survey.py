@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Iterable
 
-from repowraith.config import (
+from repollama.config import (
     DEFAULT_IGNORE_DIR_SUFFIXES,
     DEFAULT_IGNORE_DIRS,
     DEFAULT_IGNORE_EXTENSIONS,

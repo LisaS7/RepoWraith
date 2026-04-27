@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
-from repowraith.models import Chunk
-from repowraith.splitter import CHUNK_SIZE, OVERLAP, split_file, split_repository
+from repollama.models import Chunk
+from repollama.splitter import CHUNK_SIZE, OVERLAP, split_file, split_repository
 from tests.helpers import create_test_file
 
 
@@ -66,7 +66,7 @@ def test_split_file_returns_empty_list_when_all_encodings_fail(tmp_path):
         OSError("permission denied"),
     ]
 
-    with patch("repowraith.splitter.Path.read_text", side_effect=side_effects):
+    with patch("repollama.splitter.Path.read_text", side_effect=side_effects):
         chunks = split_file(file_path)
 
     assert chunks == []

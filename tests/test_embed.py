@@ -3,15 +3,15 @@ from unittest.mock import call, patch
 
 import pytest
 
-from repowraith.embed import embed_chunks, embed_text
-from repowraith.errors import OllamaConnectionError, OllamaResponseError
-from repowraith.models import Chunk, EmbeddedChunk
+from repollama.embed import embed_chunks, embed_text
+from repollama.errors import OllamaConnectionError, OllamaResponseError
+from repollama.models import Chunk, EmbeddedChunk
 
 
 # ═════════════════ embed_chunks ═════════════════
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_chunks_returns_embedded_chunks(mock_post) -> None:
     chunks = [
         Chunk(file_path=Path("a.py"), start_line=1, end_line=3, text="print('hello')"),
@@ -36,7 +36,7 @@ def test_embed_chunks_returns_empty_list_for_no_chunks() -> None:
     assert result == []
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_chunks_batches_by_batch_size(mock_post) -> None:
     chunks = [
         Chunk(file_path=Path("a.py"), start_line=1, end_line=1, text="a"),
@@ -48,7 +48,7 @@ def test_embed_chunks_batches_by_batch_size(mock_post) -> None:
         {"embeddings": [[0.5, 0.6]]},
     ]
 
-    with patch("repowraith.embed.EMBED_BATCH_SIZE", 2):
+    with patch("repollama.embed.EMBED_BATCH_SIZE", 2):
         result = embed_chunks(chunks)
 
     assert len(result) == 3
@@ -59,7 +59,7 @@ def test_embed_chunks_batches_by_batch_size(mock_post) -> None:
 
 
 @patch(
-    "repowraith.embed.post_to_ollama",
+    "repollama.embed.post_to_ollama",
     side_effect=OllamaConnectionError("Ollama not running"),
 )
 def test_embed_chunks_propagates_ollama_connection_error(mock_post) -> None:
@@ -71,7 +71,7 @@ def test_embed_chunks_propagates_ollama_connection_error(mock_post) -> None:
 
 
 @patch(
-    "repowraith.embed.post_to_ollama",
+    "repollama.embed.post_to_ollama",
     side_effect=OllamaResponseError("bad response"),
 )
 def test_embed_chunks_propagates_ollama_response_error(mock_post) -> None:
@@ -85,7 +85,7 @@ def test_embed_chunks_propagates_ollama_response_error(mock_post) -> None:
 # ═════════════════ embed_text ═════════════════
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_text_returns_inner_embedding_vector(mock_post) -> None:
     mock_post.return_value = {"embeddings": [[0.1, 0.2, 0.3]]}
 
@@ -94,7 +94,7 @@ def test_embed_text_returns_inner_embedding_vector(mock_post) -> None:
     assert result == [0.1, 0.2, 0.3]
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_text_raises_when_embeddings_key_missing(mock_post) -> None:
     mock_post.return_value = {}
 
@@ -102,7 +102,7 @@ def test_embed_text_raises_when_embeddings_key_missing(mock_post) -> None:
         embed_text("hello")
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_text_raises_when_embeddings_list_is_empty(mock_post) -> None:
     mock_post.return_value = {"embeddings": []}
 
@@ -110,7 +110,7 @@ def test_embed_text_raises_when_embeddings_list_is_empty(mock_post) -> None:
         embed_text("hello")
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_text_raises_when_inner_vector_is_empty(mock_post) -> None:
     mock_post.return_value = {"embeddings": [[]]}
 
@@ -118,7 +118,7 @@ def test_embed_text_raises_when_inner_vector_is_empty(mock_post) -> None:
         embed_text("hello")
 
 
-@patch("repowraith.embed.post_to_ollama")
+@patch("repollama.embed.post_to_ollama")
 def test_embed_text_raises_when_inner_vector_contains_non_numeric(mock_post) -> None:
     mock_post.return_value = {"embeddings": [["not", "a", "float"]]}
 

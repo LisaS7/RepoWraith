@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from repowraith.models import Chunk, EmbeddedChunk
-from repowraith.store import (
+from repollama.models import Chunk, EmbeddedChunk
+from repollama.store import (
     delete_chunks_for_repo,
     get_connection,
     get_db_path,
@@ -21,14 +21,14 @@ from repowraith.store import (
 
 
 def test_get_db_path(tmp_path) -> None:
-    assert get_db_path(tmp_path) == tmp_path / ".repowraith" / "index.db"
+    assert get_db_path(tmp_path) == tmp_path / ".repollama" / "index.db"
 
 
 def test_get_connection(tmp_path) -> None:
-    db_path = tmp_path / ".repowraith" / "index.db"
+    db_path = tmp_path / ".repollama" / "index.db"
 
     with get_connection(tmp_path) as conn:
-        assert (tmp_path / ".repowraith").exists()
+        assert (tmp_path / ".repollama").exists()
         assert db_path.exists()
         assert isinstance(conn, sqlite3.Connection)
         assert conn.row_factory is sqlite3.Row
@@ -90,7 +90,7 @@ def test_upsert_repository_updates_indexed_at(tmp_path) -> None:
     with get_connection(tmp_path) as conn:
         init_db(conn)
 
-        with patch("repowraith.store.datetime.datetime") as mock_dt:
+        with patch("repollama.store.datetime.datetime") as mock_dt:
             mock_dt.now.side_effect = [t1, t2]
 
             upsert_repository(conn, tmp_path)
@@ -283,7 +283,7 @@ def test_load_chunks(tmp_path) -> None:
         insert_chunks(conn, repo_id, tmp_path, [
             EmbeddedChunk(
                 chunk=Chunk(
-                    file_path=tmp_path / "repowraith/embed.py",
+                    file_path=tmp_path / "repollama/embed.py",
                     start_line=10,
                     end_line=25,
                     text="def embed_text(text): ...",
@@ -297,7 +297,7 @@ def test_load_chunks(tmp_path) -> None:
     assert len(chunks) == 1
 
     embedded_chunk = chunks[0]
-    assert embedded_chunk.chunk.file_path == Path("repowraith/embed.py")
+    assert embedded_chunk.chunk.file_path == Path("repollama/embed.py")
     assert embedded_chunk.chunk.start_line == 10
     assert embedded_chunk.chunk.end_line == 25
     assert embedded_chunk.chunk.text == "def embed_text(text): ..."

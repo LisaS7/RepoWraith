@@ -3,8 +3,8 @@ import json
 import sqlite3
 from pathlib import Path
 
-from repowraith.models import Chunk, EmbeddedChunk
-from repowraith.schema import (
+from repollama.models import Chunk, EmbeddedChunk
+from repollama.schema import (
     CREATE_CHUNKS_REPO_INDEX,
     CREATE_CHUNKS_TABLE,
     CREATE_REPOSITORIES_TABLE,
@@ -13,7 +13,7 @@ from repowraith.schema import (
 
 
 def get_db_path(repo_path: Path) -> Path:
-    return repo_path / ".repowraith" / "index.db"
+    return repo_path / ".repollama" / "index.db"
 
 
 def get_repo_id(conn: sqlite3.Connection, repo_path: Path) -> int:

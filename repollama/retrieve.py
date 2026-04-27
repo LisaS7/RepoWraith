@@ -3,7 +3,7 @@ import math
 import re
 from pathlib import Path
 
-from repowraith.config import (
+from repollama.config import (
     BM25_B,
     BM25_K1,
     DEFAULT_TOP_K,
@@ -12,9 +12,9 @@ from repowraith.config import (
     STOP_WORDS,
     TEST_FILE_WEIGHT,
 )
-from repowraith.embed import embed_text
-from repowraith.models import EmbeddedChunk, RetrievedChunk
-from repowraith.store import load_chunks
+from repollama.embed import embed_text
+from repollama.models import EmbeddedChunk, RetrievedChunk
+from repollama.store import load_chunks
 
 
 def tokenize(text: str) -> list[str]:

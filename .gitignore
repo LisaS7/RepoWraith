@@ -11,8 +11,8 @@ __pycache__/
 dist/
 build/
 
-# RepoWraith index
-.repowraith/
+# RepoLlama index
+.repollama/
 
 # Notes
 */todo.txt

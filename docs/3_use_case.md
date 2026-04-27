@@ -3,7 +3,7 @@ flowchart LR
 
     developer[Developer]
 
-    subgraph system[RepoWraith]
+    subgraph system[RepoLlama]
         survey(Survey repository)
         ingest(Ingest repository)
         ask(Ask question about codebase)

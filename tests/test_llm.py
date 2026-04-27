@@ -2,16 +2,16 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from repowraith.config import GENERATE_TIMEOUT_SECONDS, LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, OLLAMA_CHAT_URL
-from repowraith.errors import OllamaResponseError
-from repowraith.llm import ask_llm
+from repollama.config import GENERATE_TIMEOUT_SECONDS, LLM_MAX_TOKENS, LLM_MODEL, LLM_TEMPERATURE, OLLAMA_CHAT_URL
+from repollama.errors import OllamaResponseError
+from repollama.llm import ask_llm
 
 SYSTEM = "You are a code assistant."
 PROMPT = "Where is the hello world code?"
 CHAT_RESPONSE = {"message": {"role": "assistant", "content": "The hello world code is in app.py."}}
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_ask_llm_sends_expected_request(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = CHAT_RESPONSE
@@ -35,7 +35,7 @@ def test_ask_llm_sends_expected_request(mock_post):
     )
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_ask_llm_returns_response_text(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = CHAT_RESPONSE
@@ -47,7 +47,7 @@ def test_ask_llm_returns_response_text(mock_post):
     assert result == "The hello world code is in app.py."
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_ask_llm_raises_when_response_field_is_absent(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = {}
@@ -58,7 +58,7 @@ def test_ask_llm_raises_when_response_field_is_absent(mock_post):
         ask_llm(SYSTEM, "What does this do?")
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_ask_llm_raises_when_response_field_is_empty_string(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = {"message": {"role": "assistant", "content": "   "}}
@@ -69,7 +69,7 @@ def test_ask_llm_raises_when_response_field_is_empty_string(mock_post):
         ask_llm(SYSTEM, "What does this do?")
 
 
-@patch("repowraith.ollama.requests.post")
+@patch("repollama.ollama.requests.post")
 def test_ask_llm_raises_when_response_field_is_not_a_string(mock_post):
     mock_response = Mock()
     mock_response.json.return_value = {"message": {"role": "assistant", "content": 42}}

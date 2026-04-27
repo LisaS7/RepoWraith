@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from repowraith.cli import cmd_ask, cmd_ingest, cmd_survey, main, parse_args
-from repowraith.errors import OllamaConnectionError
-from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
+from repollama.cli import cmd_ask, cmd_ingest, cmd_survey, main, parse_args
+from repollama.errors import OllamaConnectionError
+from repollama.models import Chunk, EmbeddedChunk, RetrievedChunk
 from tests.helpers import create_test_file, create_test_repo
 
 
@@ -64,8 +64,8 @@ def test_ingest(tmp_path, capsys, monkeypatch):
         stored["repo_path"] = repo_path
         stored["embedded_chunks"] = embedded_chunks
 
-    monkeypatch.setattr("repowraith.cli.embed_chunks", fake_embed_chunks)
-    monkeypatch.setattr("repowraith.cli.index_repository", fake_index_repository)
+    monkeypatch.setattr("repollama.cli.embed_chunks", fake_embed_chunks)
+    monkeypatch.setattr("repollama.cli.index_repository", fake_index_repository)
 
     cmd_ingest(args)
 
@@ -97,7 +97,7 @@ def test_parse_args_ingest():
 
 
 def test_cmd_ask_prints_no_index_message_when_retrieve_returns_empty(tmp_path, capsys, monkeypatch):
-    monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path, k: [])
+    monkeypatch.setattr("repollama.cli.retrieve", lambda question, repo_path, k: [])
 
     args = Namespace(path=str(tmp_path), question="what does this do", verbose=False)
     cmd_ask(args)
@@ -107,11 +107,11 @@ def test_cmd_ask_prints_no_index_message_when_retrieve_returns_empty(tmp_path, c
 
 
 def test_cmd_ask_prints_answer_on_success(tmp_path, capsys, monkeypatch):
-    retrieved = [_make_retrieved_chunk("repowraith/store.py")]
+    retrieved = [_make_retrieved_chunk("repollama/store.py")]
 
-    monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path, k: retrieved)
-    monkeypatch.setattr("repowraith.cli.score_chunk", lambda question, retrieved: 0.9)
-    monkeypatch.setattr("repowraith.cli.ask_llm", lambda system, prompt: "It uses SQLite.")
+    monkeypatch.setattr("repollama.cli.retrieve", lambda question, repo_path, k: retrieved)
+    monkeypatch.setattr("repollama.cli.score_chunk", lambda question, retrieved: 0.9)
+    monkeypatch.setattr("repollama.cli.ask_llm", lambda system, prompt: "It uses SQLite.")
 
     args = Namespace(path=str(tmp_path), question="how is data stored", verbose=False)
     cmd_ask(args)
@@ -121,11 +121,11 @@ def test_cmd_ask_prints_answer_on_success(tmp_path, capsys, monkeypatch):
 
 
 def test_cmd_ask_verbose_prints_chunk_preview(tmp_path, capsys, monkeypatch):
-    retrieved = [_make_retrieved_chunk("repowraith/store.py", text="def insert(): pass")]
+    retrieved = [_make_retrieved_chunk("repollama/store.py", text="def insert(): pass")]
 
-    monkeypatch.setattr("repowraith.cli.retrieve", lambda question, repo_path, k: retrieved)
-    monkeypatch.setattr("repowraith.cli.score_chunk", lambda question, retrieved: 0.9)
-    monkeypatch.setattr("repowraith.cli.ask_llm", lambda system, prompt: "answer")
+    monkeypatch.setattr("repollama.cli.retrieve", lambda question, repo_path, k: retrieved)
+    monkeypatch.setattr("repollama.cli.score_chunk", lambda question, retrieved: 0.9)
+    monkeypatch.setattr("repollama.cli.ask_llm", lambda system, prompt: "answer")
 
     args = Namespace(path=str(tmp_path), question="how is data stored", verbose=True)
     cmd_ask(args)
@@ -154,11 +154,11 @@ def test_ingest_excludes_deleted_file_chunks(tmp_path, monkeypatch):
 
     stored = {}
 
-    monkeypatch.setattr("repowraith.cli.load_chunks_by_file", lambda *_: fake_existing)
-    monkeypatch.setattr("repowraith.cli.hash_file", lambda f: "abc")
-    monkeypatch.setattr("repowraith.cli.split_file", lambda f: [])
-    monkeypatch.setattr("repowraith.cli.embed_chunks", lambda chunks: [])
-    monkeypatch.setattr("repowraith.cli.index_repository", lambda repo_path, chunks: stored.update({"chunks": chunks}))
+    monkeypatch.setattr("repollama.cli.load_chunks_by_file", lambda *_: fake_existing)
+    monkeypatch.setattr("repollama.cli.hash_file", lambda f: "abc")
+    monkeypatch.setattr("repollama.cli.split_file", lambda f: [])
+    monkeypatch.setattr("repollama.cli.embed_chunks", lambda chunks: [])
+    monkeypatch.setattr("repollama.cli.index_repository", lambda repo_path, chunks: stored.update({"chunks": chunks}))
 
     args = Namespace(path=tmp_path)
     cmd_ingest(args)
@@ -167,11 +167,11 @@ def test_ingest_excludes_deleted_file_chunks(tmp_path, monkeypatch):
     assert deleted_file not in stored_paths
 
 
-def test_main_exits_with_code_1_on_repowraith_error(monkeypatch, capsys):
+def test_main_exits_with_code_1_on_repollama_error(monkeypatch, capsys):
     def raise_error(args):
         raise OllamaConnectionError("no ollama running")
 
-    monkeypatch.setattr("repowraith.cli.parse_args", lambda: Namespace(func=raise_error))
+    monkeypatch.setattr("repollama.cli.parse_args", lambda: Namespace(func=raise_error))
 
     with pytest.raises(SystemExit) as exc_info:
         main()

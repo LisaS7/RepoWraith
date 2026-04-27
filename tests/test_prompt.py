@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from repowraith.models import Chunk, EmbeddedChunk, RetrievedChunk
-from repowraith.prompt import build_prompt, format_chunk
+from repollama.models import Chunk, EmbeddedChunk, RetrievedChunk
+from repollama.prompt import build_prompt, format_chunk
 
 
 def make_retrieved_chunk(
@@ -29,7 +29,7 @@ def make_retrieved_chunk(
 
 def test_format_chunk():
     retrieved_chunk = make_retrieved_chunk(
-        "repowraith/embed.py",
+        "repollama/embed.py",
         10,
         20,
         "def embed_text(text):\n    return [0.1, 0.2]",
@@ -38,7 +38,7 @@ def test_format_chunk():
     result = format_chunk(retrieved_chunk, 1)
 
     assert result == (
-        "--- [1] repowraith/embed.py:10-20 ---\n"
+        "--- [1] repollama/embed.py:10-20 ---\n"
         "def embed_text(text):\n    return [0.1, 0.2]"
     )
 
@@ -46,13 +46,13 @@ def test_format_chunk():
 def test_build_prompt_includes_question_and_context():
     retrieved_chunks = [
         make_retrieved_chunk(
-            "repowraith/embed.py",
+            "repollama/embed.py",
             10,
             20,
             "def embed_text(text):\n    return [0.1, 0.2]",
         ),
         make_retrieved_chunk(
-            "repowraith/cli.py",
+            "repollama/cli.py",
             30,
             40,
             "def main():\n    pass",
@@ -65,9 +65,9 @@ def test_build_prompt_includes_question_and_context():
     )
 
     assert "Where is embedding implemented?" in user
-    assert "[1] repowraith/embed.py:10-20" in user
+    assert "[1] repollama/embed.py:10-20" in user
     assert "def embed_text(text):" in user
-    assert "[2] repowraith/cli.py:30-40" in user
+    assert "[2] repollama/cli.py:30-40" in user
     assert "def main():" in user
 
 

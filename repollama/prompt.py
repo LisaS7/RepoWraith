@@ -1,8 +1,8 @@
 import logging
 from pathlib import Path
 
-from repowraith.config import DEFAULT_TOP_K
-from repowraith.models import RetrievedChunk
+from repollama.config import DEFAULT_TOP_K
+from repollama.models import RetrievedChunk
 
 _TEMPLATE = (Path(__file__).parent / "prompt_template.txt").read_text(encoding="utf-8")
 _SYSTEM_PROMPT = (Path(__file__).parent / "system_prompt.txt").read_text(encoding="utf-8").strip()

@@ -1,4 +1,4 @@
-# Requirements: RepoWraith
+# Requirements: RepoLlama
 
 ## Functional Requirements
 
@@ -16,5 +16,5 @@ NFR3: System must handle repositories up to X files
 
 FR2:
 - Given a user has indexed a repo
-- When they run `repowraith ask`
+- When they run `repollama ask`
 - Then the system returns an answer with relevant code context
