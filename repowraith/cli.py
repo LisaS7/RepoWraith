@@ -3,10 +3,12 @@ import logging
 import sys
 from pathlib import Path
 
+from repowraith.config import DEFAULT_TOP_K, RERANK_CANDIDATES
 from repowraith.embed import embed_chunks
 from repowraith.errors import RepoWraithError
 from repowraith.llm import ask_llm
 from repowraith.prompt import build_prompt
+from repowraith.rerank import score_chunk
 from repowraith.retrieve import retrieve
 from repowraith.splitter import hash_file, split_file
 from repowraith.store import (
@@ -142,7 +144,7 @@ def cmd_ask(args: argparse.Namespace) -> None:
         logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     print("Retrieving relevant chunks...")
-    retrieved_chunks = retrieve(args.question, repo_path)
+    retrieved_chunks = retrieve(args.question, repo_path, k=RERANK_CANDIDATES)
 
     if not retrieved_chunks:
         print()
@@ -150,10 +152,26 @@ def cmd_ask(args: argparse.Namespace) -> None:
         print(f"Run `repowraith ingest {repo_path}` first, then try again.")
         return
 
+    print(f"Reranking {len(retrieved_chunks)} candidates...")
+    for i, retrieved in enumerate(retrieved_chunks, start=1):
+        print(f"  [{i}/{len(retrieved_chunks)}]", end="\r", flush=True)
+        retrieved.rerank_score = score_chunk(args.question, retrieved)
+    print()
+    retrieved_chunks.sort(
+        key=lambda rc: rc.rerank_score if rc.rerank_score is not None else 0.0,
+        reverse=True,
+    )
+    # Drop chunks the judge scored 0 (unrelated), but keep at least one chunk
+    # so the LLM still has context if every candidate scored low.
+    relevant = [rc for rc in retrieved_chunks if (rc.rerank_score or 0.0) > 0.0]
+    retrieved_chunks = (relevant or retrieved_chunks[:1])[:DEFAULT_TOP_K]
+
     for item in retrieved_chunks:
         chunk = item.embedded_chunk.chunk
+        rerank = item.rerank_score if item.rerank_score is not None else 0.0
         print(
-            f"[score={item.score:.3f}] {chunk.file_path}:{chunk.start_line}-{chunk.end_line}"
+            f"[rerank={rerank:.2f} retrieve={item.score:.3f}] "
+            f"{chunk.file_path}:{chunk.start_line}-{chunk.end_line}"
         )
         if args.verbose:
             print(preview_text(chunk.text))

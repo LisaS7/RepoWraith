@@ -25,6 +25,7 @@ class RetrievedChunk:
     lexical_score: float = 0.0
     file_score: float = 0.0
     test_penalized: bool = False
+    rerank_score: float | None = None
 
     @property
     def chunk(self) -> Chunk:
